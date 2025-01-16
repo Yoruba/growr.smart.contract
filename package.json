@@ -1,3 +1,15 @@
 {
-  "name": "hardhat-project"
+  "name": "growr-rewards",
+  "version": "0.1.0",
+  "description": "A Hardhat project",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.18",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
 }
