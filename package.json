@@ -4,7 +4,8 @@
   "description": "A Hardhat project",
   "scripts": {
     "node": "npx hardhat node",
-    "start": "npx hardhat run --network localhost scripts/deploy.js && npm run console",
+    "start": "npx hardhat run --network localhost scripts/deploy.js",
+    "index": "npx hardhat run --network localhost scripts/index.js",
     "console": "npx hardhat console --network localhost",
     "compile": "hardhat compile",
     "test": "hardhat test"
