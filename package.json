@@ -5,6 +5,10 @@
   "scripts": {
     "node": "npx hardhat node",
     "start": "npx hardhat run --network localhost scripts/deploy.js",
+    "theta-deploy-private": "npx hardhat run  --network theta_privatenet scripts/deploy.ts",
+    "theta-node": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta start --config=../privatenet/validator --password=qwertyuiop",
+    "theta-rpc": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta-eth-rpc-adaptor start --config=../privatenet/eth_rpc_adaptor",
+    "theta-check": "curl -X POST -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":67}' http://127.0.0.1:18888/rpc",
     "index": "npx hardhat run --network localhost scripts/index.js",
     "console": "npx hardhat console --network localhost",
     "compile": "hardhat compile",
@@ -12,7 +16,9 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "ethers": "^6.13.5",
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.4.7",
+    "ethers": "^5.7.2",
     "hardhat": "^2.22.18",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
