@@ -1,8 +1,11 @@
 import { ethers } from "ethers";
 import fs from "fs";
+import dotenv from "dotenv";
 
-require("dotenv").config({ path: "./.env.private" });
-//require('dotenv').config({ path: './.env.test' })
+// Get the environment file path from an environment variable
+const envFilePath = process.env.ENV_FILE_PATH || "./.env.private";
+dotenv.config({ path: envFilePath });
+
 const { API_URL, PRIVATE_KEY } = process.env;
 const jsonFile = "./artifacts/contracts/Box.sol/Box.json";
 

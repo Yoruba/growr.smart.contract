@@ -1,9 +1,4 @@
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-
-// const config: HardhatUserConfig = {
-//   solidity: "0.8.28",
-// };
 
 const config: HardhatUserConfig = {
   //  replace `"11...1"` with the actual private key of the deployer wallet
@@ -29,6 +24,7 @@ const config: HardhatUserConfig = {
       gasPrice: 4000000000000,
     },
     theta_testnet: {
+      // https://testnet-explorer.thetatoken.org/
       url: `https://eth-rpc-api-testnet.thetatoken.org/rpc`,
       accounts: [
         "1111111111111111111111111111111111111111111111111111111111111111",
@@ -46,7 +42,7 @@ const config: HardhatUserConfig = {
     },
   },
   solidity: {
-    version: "0.8.17",
+    version: "0.8.20",
     settings: {
       optimizer: {
         enabled: true,
