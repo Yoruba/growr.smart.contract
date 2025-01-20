@@ -1,6 +1,6 @@
+import * as dotenv from "dotenv";
 import { ethers } from "ethers";
 import fs from "fs";
-import dotenv from "dotenv";
 
 // Get the environment file path from an environment variable
 const envFilePath = process.env.ENV_FILE_PATH || "./.env.private";
@@ -13,35 +13,26 @@ console.log(API_URL);
 console.log(PRIVATE_KEY);
 
 async function main() {
-  const provider = new ethers.providers.JsonRpcProvider(API_URL);
+  const provider = new ethers.JsonRpcProvider(API_URL);
   const wallet = new ethers.Wallet(PRIVATE_KEY || "", provider);
 
   console.log(`deployer address ${wallet.address}`);
-  console.log(`deployer balance ${await wallet.getBalance()}`);
 
   const metadata = JSON.parse(fs.readFileSync(jsonFile).toString());
 
+  // Create a contract factory
   const contractFactory = new ethers.ContractFactory(
     metadata.abi,
     metadata.bytecode,
     wallet
   );
+
+  // Deploy the contract
   const contract = await contractFactory.deploy();
+  // Wait for the deployment transaction to be mined
+  await contract.waitForDeployment();
 
-  await contract.deployTransaction.wait();
-
-  console.log("contract address:", contract.address);
-
-  // attach the contract to the address
-  const box = new ethers.Contract(contract.address, metadata.abi, wallet);
-
-  // interact with the contract
-  const tx = await box.store(42);
-  await tx.wait(); // Wait for the transaction to be mined
-
-  // get the value stored in the contract
-  const value = await box.retrieve();
-  console.log("stored value:", value.toString());
+  console.log("contract address:", contract.target);
 }
 
 main()

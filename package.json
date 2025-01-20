@@ -4,7 +4,7 @@
   "description": "A Hardhat project",
   "scripts": {
     "node": "npx hardhat node",
-    "start": "npx hardhat run --network localhost scripts/deploy.js",
+    "start": "npx hardhat run --network localhost scripts/deploy.ts",
     "theta-deploy-private": "ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/deploy.ts",
     "theta-deploy-test": "ENV_FILE_PATH=./.env.test npx hardhat run  --network theta_testnet scripts/deploy.ts",
     "theta-node": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta start --config=../privatenet/validator --password=qwertyuiop",
@@ -13,17 +13,18 @@
     "index": "npx hardhat run --network localhost scripts/index.js",
     "console": "npx hardhat console --network localhost",
     "compile": "hardhat compile",
-    "test": "hardhat test"
+    "test": "vitest"
+
   },
   "devDependencies": {
     "dotenv": "^16.4.7",
-    "ethers": "^5.7.2",
     "hardhat": "^2.22.18",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "vitest": "^3.0.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.2.0"
+    "@openzeppelin/contracts": "^5.2.0",
+    "ethers": "^6.13.5"
   }
 }

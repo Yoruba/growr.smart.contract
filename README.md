@@ -1,7 +1,9 @@
 # Theta
+
 https://docs.thetatoken.org/docs/turing-complete-smart-contract-support
 
 # Setup project
+
 npx hardhat init
 npm install --save-dev typescript
 npm install --save-dev ts-node
@@ -9,17 +11,25 @@ npm install --save-dev @nomicfoundation/hardhat-toolbox
 npm install --save-dev ethers
 
 # Compile
+
 npx hardhat compile
 
 # Theta Local Net
+
 https://docs.thetatoken.org/docs/setup-local-theta-ethereum-rpc-adaptor
 
 wget https://theta-downloader.s3.amazonaws.com/ethrpc/theta_local_privatenet_linux.tar.gz
 tar -xvzf theta_local_privatenet_linux.tar.gz
-rm ../privatenet/validator/key/encrypted/._2E833968E5bB786Ae419c4d13189fB081Cc43bab
+rm ../privatenet/validator/key/encrypted/.\_2E833968E5bB786Ae419c4d13189fB081Cc43bab
 cd theta_local_privatenet_linux/bin
 
-  ./theta start --config=../privatenet/validator --password=qwertyuiop
+./theta start --config=../privatenet/validator --password=qwertyuiop
+
+# unit testing on Theta local net
+https://docs.thetatoken.org/docs/demo-3-testing-the-openzeppelin-suite-against-theta-local-privatenet
+
+
+
 
 # Deploy to the Theta Mainnet
 
