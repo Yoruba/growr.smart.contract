@@ -3,16 +3,17 @@
   "version": "0.1.0",
   "description": "A Hardhat project",
   "scripts": {
-    "deploy-private": "ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/deploy.ts",
-    "deploy-test": "ENV_FILE_PATH=./.env.test npx hardhat run  --network theta_testnet scripts/deploy.ts",
+    "deploy-private": "ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/upgrade.ts",
+    "deploy-test": "ENV_FILE_PATH=./.env.test npx hardhat run  --network theta_testnet scripts/upgrade.ts",
     "node": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta start --config=../privatenet/validator --password=qwertyuiop",
     "rpc": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta-eth-rpc-adaptor start --config=../privatenet/eth_rpc_adaptor",
     "check": "curl -X POST -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":67}' http://127.0.0.1:18888/rpc",
     "test": "vitest",
-    "extract": "node extractAbiAndBytecode.js" 
+    "extract": "node extractAbiAndBytecode.js"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-verify": "^2.0.12",
+    "@openzeppelin/hardhat-upgrades": "^3.9.0",
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "hardhat": "^2.22.18",

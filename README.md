@@ -28,6 +28,7 @@ https://docs.thetatoken.org/docs/demo-3-testing-the-openzeppelin-suite-against-t
 
 # verify contract on Theta mainnet
 https://docs.thetatoken.org/docs/explorer-tools-for-dapp-development
+Test net validation is not ok. Use wallet for it. Set wallet on Test net
 
 
 

@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
 import fs from "fs";
+import { Box } from "../typechain-types/contracts/Box";
 
 // Start test block
 describe("Box", function () {
@@ -24,11 +25,11 @@ describe("Box", function () {
     wallet
   );
 
-  let contract: any;
+  let contract: Box;
 
   beforeEach(async function () {
     // Deploy the contract
-    contract = await contractFactory.deploy();
+    contract = (await contractFactory.deploy(wallet.address)) as Box;
     // Wait for the deployment transaction to be mined
     await contract.waitForDeployment();
 
