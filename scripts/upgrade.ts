@@ -32,8 +32,9 @@ async function main() {
   // Deploy the contract with the owner wallet address
   const contract = await upgrades.deployProxy(
     contractFactory,
-    [42],
-    { initializer: "store" }
+    [wallet.address], // constructor arguments
+    // function call
+    { initializer: "initialize" }
   );
   // Wait for the deployment transaction to be mined
   await contract.waitForDeployment();

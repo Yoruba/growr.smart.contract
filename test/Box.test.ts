@@ -42,6 +42,7 @@ describe("Box", function () {
     const tx = await contract.store(42);
     await tx.wait();
 
+  
     const value = await contract.retrieve();
     console.log(value.toString());
 
