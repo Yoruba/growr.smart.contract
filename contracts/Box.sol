@@ -1,6 +1,6 @@
 // contracts/Box.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.28;
 
 // Import Ownable from the OpenZeppelin Contracts library
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -11,7 +11,7 @@ contract Box is Ownable {
 
     event ValueChanged(uint256 value);
 
-    constructor() Ownable(msg.sender) {}
+    constructor(address initialOwner) Ownable(initialOwner) {}
 
     // The onlyOwner modifier restricts who can call the store function
     function store(uint256 value) public onlyOwner {

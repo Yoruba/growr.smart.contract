@@ -1,4 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-verify";
+import "./extractAbiAndBytecode";
 
 const config: HardhatUserConfig = {
   //  replace `"11...1"` with the actual private key of the deployer wallet
@@ -42,7 +44,7 @@ const config: HardhatUserConfig = {
     },
   },
   solidity: {
-    version: "0.8.20",
+    version: "0.8.28",
     settings: {
       optimizer: {
         enabled: true,

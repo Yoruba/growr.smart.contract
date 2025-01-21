@@ -7,12 +7,10 @@ https://docs.thetatoken.org/docs/turing-complete-smart-contract-support
 npx hardhat init
 npm install --save-dev typescript
 npm install --save-dev ts-node
-npm install --save-dev @nomicfoundation/hardhat-toolbox
 npm install --save-dev ethers
 
-# Compile
-
-npx hardhat compile
+# Explorer Testnet
+https://testnet-explorer.thetatoken.org/account/0x50c97c6e98525d0C9Dc206B0e9Da8777bbe2Ce53
 
 # Theta Local Net
 
@@ -28,6 +26,8 @@ cd theta_local_privatenet_linux/bin
 # unit testing on Theta local net
 https://docs.thetatoken.org/docs/demo-3-testing-the-openzeppelin-suite-against-theta-local-privatenet
 
+# verify contract on Theta mainnet
+https://docs.thetatoken.org/docs/explorer-tools-for-dapp-development
 
 
 

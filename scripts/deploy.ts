@@ -27,8 +27,8 @@ async function main() {
     wallet
   );
 
-  // Deploy the contract
-  const contract = await contractFactory.deploy();
+  // Deploy the contract with the owner wallet address
+  const contract = await contractFactory.deploy(wallet.address);
   // Wait for the deployment transaction to be mined
   await contract.waitForDeployment();
 
