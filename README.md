@@ -9,6 +9,9 @@ npm install --save-dev typescript
 npm install --save-dev ts-node
 npm install --save-dev ethers
 
+# openzeppelin
+https://wizard.openzeppelin.com/#custom
+
 # Explorer Testnet
 https://testnet-explorer.thetatoken.org/account/0x50c97c6e98525d0C9Dc206B0e9Da8777bbe2Ce53
 
