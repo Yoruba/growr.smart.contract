@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /// @custom:security-contact hi@ggrow.io
-contract Box is Initializable, OwnableUpgradeable {
+contract Upgradeable is Initializable, OwnableUpgradeable {
     uint256 private _value;
 
     event ValueChanged(uint256 value);

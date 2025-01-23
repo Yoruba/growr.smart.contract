@@ -1,15 +1,17 @@
+const dotenv = require("dotenv");
+const { ethers } = require("ethers");
+const { upgrades } = require("hardhat");
+const fs = require("fs");
+
 // scripts/deploy_upgradeable_box.js
-import * as dotenv from "dotenv";
-import { ethers } from "ethers";
-import { upgrades } from "hardhat";
-import fs from "fs";
 
 // Get the environment file path from an environment variable
 const envFilePath = process.env.ENV_FILE_PATH || "./.env.private";
 dotenv.config({ path: envFilePath });
 
 const { API_URL, PRIVATE_KEY } = process.env;
-const jsonFile = "./artifacts/contracts/Box.sol/Box.json";
+const contractName = "Upgradeable";
+const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`;
 
 console.log(API_URL);
 console.log(PRIVATE_KEY);
@@ -47,4 +49,6 @@ main()
   .catch((error) => {
     console.error(error);
     process.exit(1);
-  });
+});
+
+module.exports = {}; // Add this line at the end

@@ -1,13 +1,13 @@
-import * as dotenv from "dotenv";
-import { ethers } from "ethers";
-import fs from "fs";
+const dotenv = require("dotenv");
+const { ethers } = require("ethers");
+const fs = require("fs");
 
 // Get the environment file path from an environment variable
 const envFilePath = process.env.ENV_FILE_PATH || "./.env.private";
 dotenv.config({ path: envFilePath });
 
 const { API_URL, PRIVATE_KEY } = process.env;
-const jsonFile = "./artifacts/contracts/Box.sol/Box.json";
+const jsonFile = "./artifacts/contracts/Deploy.sol/Deploy.json";
 
 console.log(API_URL);
 console.log(PRIVATE_KEY);
@@ -41,3 +41,5 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+module.exports = {}; // Add any exports if needed

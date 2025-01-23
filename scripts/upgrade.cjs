@@ -1,16 +1,17 @@
+const dotenv = require("dotenv");
+const { ethers } = require("ethers");
+const { upgrades } = require("hardhat");
+const fs = require("fs");
+
 // scripts/deploy_upgradeable_box.js
-import * as dotenv from "dotenv";
-import { ethers } from "ethers";
-import { upgrades } from "hardhat";
-import fs from "fs";
-import { Box } from "../typechain-types/contracts/Box";
 
 // Get the environment file path from an environment variable
 const envFilePath = process.env.ENV_FILE_PATH || "./.env.private";
 dotenv.config({ path: envFilePath });
 
 const { API_URL, PRIVATE_KEY } = process.env;
-const jsonFile = "./artifacts/contracts/Box.sol/Box.json";
+const contractName = "Upgrade"; // Replace "Box" with the desired contract name
+const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`;
 
 console.log(API_URL);
 console.log(PRIVATE_KEY);
@@ -36,8 +37,7 @@ async function main() {
   const contract = await upgrades.upgradeProxy(
     proxyAddress,
     contractFactory
-  ) as Box
-
+  );
 
   // Wait for the deployment transaction to be mined
   await contract.waitForDeployment();
@@ -55,9 +55,4 @@ async function main() {
   // console.log(owner);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+module.exports = main;

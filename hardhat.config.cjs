@@ -1,6 +1,8 @@
 require("@nomicfoundation/hardhat-verify");
 require("@openzeppelin/hardhat-upgrades");
+require("@typechain/hardhat");
 
+// for testing with vitest
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   //  replace `"11...1"` with the actual private key of the deployer wallet
@@ -60,4 +62,3 @@ module.exports = {
     },
   },
 };
-

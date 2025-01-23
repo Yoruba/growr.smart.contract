@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
 import fs from "fs";
-import { Box } from "./typechain-types/contracts/Box";
+import { Deploy } from "../typechain-types/contracts/Deploy";
 
 // Start test block
 describe("Box", function () {
@@ -9,7 +9,7 @@ describe("Box", function () {
   dotenv.config({ path: envFilePath });
 
   const { API_URL, PRIVATE_KEY } = process.env;
-  const jsonFile = "./artifacts/contracts/Box.sol/Box.json";
+  const jsonFile = "./artifacts/contracts/Deploy.sol/Deploy.json";
 
   const provider = new ethers.JsonRpcProvider(API_URL);
   const wallet = new ethers.Wallet(PRIVATE_KEY || "", provider);
@@ -25,11 +25,11 @@ describe("Box", function () {
     wallet
   );
 
-  let contract: Box;
+  let contract: Deploy;
 
   beforeEach(async function () {
     // Deploy the contract
-    contract = (await contractFactory.deploy(wallet.address)) as Box;
+    contract = (await contractFactory.deploy(wallet.address)) as Deploy;
     // Wait for the deployment transaction to be mined
     await contract.waitForDeployment();
 
