@@ -10,6 +10,21 @@
       "address": "0x0d7FC81a51165B2B3729B01dB132858Bb8aA3065",
       "txHash": "0xcb1f417b240d0a12cac9913bae39a03716c6641e77d3ea1c8315c18e599ca8ba",
       "kind": "transparent"
+    },
+    {
+      "address": "0x7A23531a26194668433419537dA8FC6E8066bC7d",
+      "txHash": "0x91bfee2dadb65c627453d4f8a0cd368130395359b92f0ad3b2bf08d441e09090",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x99B43C21CEf66Ad028aDBd456DB39e9aa97d8574",
+      "txHash": "0x96973bf9e2f00b053141dda188b90efb2fe515b407792eb2234d39cb51341e31",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa6b63544177B99b05e41b88F01067ee5bba617ed",
+      "txHash": "0x45ac25f971c40d9c72c0c89b2fbe070646442b68b24f49fa39cb4c513e2a9395",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -135,6 +150,101 @@
     "5e76a64e3387366c5e32a891f8b31421489680f71fb4ae6ff81e7e50d9d0e74b": {
       "address": "0x6F2F2692eaCAE7aE234C2e234A87574232Dd5B43",
       "txHash": "0x101556a90d775f9bcc543e561dbb23efd0b86ad8ddccf29c2ae4f54127508bbd",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "_value",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Box",
+            "src": "contracts/Box.sol:11"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "dfa512784bff6ffe2b284e212655b256eaa1eacf1686080e48bcaa426f1d8536": {
+      "address": "0xF49AFD8F2d34aa34d909Ab9b52c1D1cceefF4304",
+      "txHash": "0x5c24573468eeba68d4d79e4ca0bc84675154fa987719c0e4a523d7848e2906b6",
       "layout": {
         "solcVersion": "0.8.28",
         "storage": [

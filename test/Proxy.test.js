@@ -2,9 +2,11 @@ import { ethers } from "ethers";
 import * as dotenv from "dotenv";
 import fs from "fs";
 import { Box } from "../typechain-types/contracts/Box";
+import { upgrades } from "hardhat";
+import { expect } from "chai";
 
 // Start test block
-describe("Box", function () {
+describe("Proxy", function () {
   const envFilePath = process.env.ENV_FILE_PATH || "./.env.private";
   dotenv.config({ path: envFilePath });
 
@@ -25,13 +27,17 @@ describe("Box", function () {
     wallet
   );
 
-  let contract: Box;
+  let contract;
 
   beforeEach(async function () {
     // Deploy the contract
-    contract = (await contractFactory.deploy(wallet.address)) as Box;
-    // Wait for the deployment transaction to be mined
-    await contract.waitForDeployment();
+   // Deploy the contract with the owner wallet address
+  const contract = await upgrades.deployProxy(
+    contractFactory,
+    [wallet.address], // constructor arguments
+    // function call
+    { initializer: "initialize" }
+  );
 
     console.log("contract address:", contract.target);
   });

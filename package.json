@@ -1,10 +1,12 @@
 {
   "name": "growr-rewards",
   "version": "0.1.0",
-  "description": "A Hardhat project",
+  "description": "ggrowr rewards",
   "scripts": {
-    "deploy-private": "ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/upgrade.ts",
-    "deploy-test": "ENV_FILE_PATH=./.env.test npx hardhat run  --network theta_testnet scripts/upgrade.ts",
+    "deploy-private": "ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/deploy-upgradeable.ts",
+    "deploy-test": "ENV_FILE_PATH=./.env.test npx hardhat run  --network theta_testnet scripts/deploy-upgradeable.ts",
+    "upgrade-private": "ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/upgrade-box.ts",
+    "upgrade-test": "ENV_FILE_PATH=./.env.test npx hardhat run  --network theta_testnet scripts/upgrade-box.ts",
     "node": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta start --config=../privatenet/validator --password=qwertyuiop",
     "rpc": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta-eth-rpc-adaptor start --config=../privatenet/eth_rpc_adaptor",
     "check": "curl -X POST -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":67}' http://127.0.0.1:18888/rpc",

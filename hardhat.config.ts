@@ -1,6 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-verify";
-import "@openzeppelin/hardhat-upgrades"
+import "@openzeppelin/hardhat-upgrades";
 
 const config: HardhatUserConfig = {
   //  replace `"11...1"` with the actual private key of the deployer wallet
