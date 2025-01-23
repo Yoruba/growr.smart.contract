@@ -2,6 +2,7 @@
   "name": "growr-rewards",
   "version": "0.1.0",
   "description": "ggrowr rewards",
+  "type": "module",
   "scripts": {
     "deploy-private": "ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/deploy-upgradeable.ts",
     "deploy-test": "ENV_FILE_PATH=./.env.test npx hardhat run  --network theta_testnet scripts/deploy-upgradeable.ts",

@@ -1,8 +1,8 @@
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-verify";
-import "@openzeppelin/hardhat-upgrades";
+require("@nomicfoundation/hardhat-verify");
+require("@openzeppelin/hardhat-upgrades");
 
-const config: HardhatUserConfig = {
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
   //  replace `"11...1"` with the actual private key of the deployer wallet
   //  (should delete the key after use, do NOT commit the private key to GitHub):
   defaultNetwork: "theta_privatenet",
@@ -14,6 +14,7 @@ const config: HardhatUserConfig = {
         "1111111111111111111111111111111111111111111111111111111111111111", // 0x19E7E376E7C213B7E7e7e46cc70A5dD086DAff2A
         "2222222222222222222222222222222222222222222222222222222222222222", // 0x1563915e194D8CfBA1943570603F7606A3115508
         "3333333333333333333333333333333333333333333333333333333333333333", // 0x5CbDd86a2FA8Dc4bDdd8a8f69dBa48572EeC07FB
+        "4444444444444444444444444444444444444444444444444444444444444444", // 0x7564105E977516C53bE337314c7E53838967bDaC
         "4444444444444444444444444444444444444444444444444444444444444444", // 0x7564105E977516C53bE337314c7E53838967bDaC
         "5555555555555555555555555555555555555555555555555555555555555555", // 0xe1fAE9b4fAB2F5726677ECfA912d96b0B683e6a9
         "6666666666666666666666666666666666666666666666666666666666666666", // 0xdb2430B4e9AC14be6554d3942822BE74811A1AF9
@@ -60,4 +61,3 @@ const config: HardhatUserConfig = {
   },
 };
 
-export default config;

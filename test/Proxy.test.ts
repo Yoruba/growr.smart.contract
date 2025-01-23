@@ -2,8 +2,8 @@ import { ethers } from "ethers";
 import * as dotenv from "dotenv";
 import fs from "fs";
 import { Box } from "../typechain-types/contracts/Box";
-import { upgrades } from "hardhat";
 import { expect } from "chai";
+import { upgrades } from "hardhat";
 
 // Start test block
 describe("Proxy", function () {
@@ -27,17 +27,20 @@ describe("Proxy", function () {
     wallet
   );
 
-  let contract;
+  let contract: any;
 
   beforeEach(async function () {
     // Deploy the contract
-   // Deploy the contract with the owner wallet address
-  const contract = await upgrades.deployProxy(
-    contractFactory,
-    [wallet.address], // constructor arguments
-    // function call
-    { initializer: "initialize" }
-  );
+    // Deploy the contract with the owner wallet address
+    contract = (await upgrades.deployProxy(
+      contractFactory,
+      [wallet.address], // constructor arguments
+      // function call
+      { initializer: "initialize" }
+    )) as Box;
+
+    // Wait for the deployment transaction to be mined
+    await contract.waitForDeployment();
 
     console.log("contract address:", contract.target);
   });
@@ -48,7 +51,6 @@ describe("Proxy", function () {
     const tx = await contract.store(42);
     await tx.wait();
 
-  
     const value = await contract.retrieve();
     console.log(value.toString());
 
