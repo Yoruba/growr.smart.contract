@@ -11,9 +11,7 @@ import "./Upgradeable.sol";
 contract Upgrade is Upgradeable {
     uint256 private _value;
 
-
     function valueTimesTwo() public view returns (uint256) {
         return _value * 2;
     }
 }
-

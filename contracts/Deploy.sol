@@ -10,8 +10,8 @@ contract Deploy is Ownable {
 
     event ValueChanged(uint256 value);
 
-   constructor(address initialOwner) Ownable(initialOwner) {}
-    
+    constructor(address initialOwner) Ownable(initialOwner) {}
+
     function store(uint256 value) public onlyOwner {
         _value = value;
         emit ValueChanged(value);
@@ -21,4 +21,3 @@ contract Deploy is Ownable {
         return _value;
     }
 }
-

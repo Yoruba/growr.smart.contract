@@ -15,7 +15,8 @@
     "rpc": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta-eth-rpc-adaptor start --config=../privatenet/eth_rpc_adaptor",
     "check": "curl -X POST -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":67}' http://127.0.0.1:18888/rpc",
     "test": "npm types && run vitest",
-    "extract": "node extractAbiAndBytecode.js"
+    "extract": "node extractAbiAndBytecode.js",
+    "prettier": "prettier --write --plugin=prettier-plugin-solidity 'contracts/**/*.sol'"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-verify": "^2.0.12",
@@ -25,6 +26,8 @@
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "hardhat": "^2.22.18",
+    "prettier": "^3.4.2",
+    "prettier-plugin-solidity": "^1.4.2",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
     "typescript": "^5.7.3",

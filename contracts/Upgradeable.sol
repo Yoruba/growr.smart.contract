@@ -8,27 +8,64 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /// @custom:security-contact hi@ggrow.io
 contract Upgradeable is Initializable, OwnableUpgradeable {
-    uint256 private _value;
+    mapping(address => uint256) public contributions; // keep track of contributions
 
-    event ValueChanged(uint256 value);
+    event FundsReceived(address sender, uint256 amount, bytes32 txHash);
+
+    // create const for amount to pay for one year
+    uint256 public constant ONE_YEAR_COST = 1 ether;
+    uint256 public yearsToTrack;
+    bytes32 public txHash;
 
     // Add an initializer function
     function initialize(address initialOwner) public initializer {
-          __Ownable_init(initialOwner); // Initialize Ownable
+        __Ownable_init(initialOwner); // Initialize Ownable
     }
 
-   /// @custom:oz-upgrades-unsafe-allow constructor
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
-    
-    function store(uint256 value) public onlyOwner {
-        _value = value;
-        emit ValueChanged(value);
-    }
 
-    function retrieve() public view returns (uint256) {
-        return _value;
+    // Fallback function to receive Ether and validate the amount
+    receive() external payable {
+        // check if the amount sent is enough to track for at least one year
+        require(
+            msg.value >= ONE_YEAR_COST,
+            "You need to send at least 1 ether to track for a year"
+        );
+
+        // check if the amount is divisible by the cost of one year
+        require(
+            msg.value % ONE_YEAR_COST == 0,
+            "You need to send a multiple of 1 ether to track for a year"
+        );
+
+        // get the number of years to track
+        yearsToTrack = msg.value / ONE_YEAR_COST;
+
+        // Check if the sender has already contributed
+        if (contributions[msg.sender] > 0) {
+            // Handle the case where the same wallet sends funds again (e.g., revert the transaction)
+            revert("Sender has already contributed");
+            // todo: handle if the sender adds more funds for more years
+        }
+
+        // Record the contribution
+        contributions[msg.sender] = msg.value;
+
+        // todo: web3 current year can be found by the tx timestamp
+        // todo: web3 add which year to track
+
+        // create a hash of the transaction for tracking and emit an event
+        // to trigger the event, we need to pass the hash of the transaction
+        txHash = keccak256(
+            abi.encodePacked(block.timestamp, msg.sender, msg.value)
+        );
+        emit FundsReceived(msg.sender, msg.value, txHash);
+
+        // todo: sent, transfer to other wallet
     }
 }
 
+// https://shishirsingh66g.medium.com/solidity-part-2-payable-fallback-and-receive-42c00cb75108#:~:text=The%20receive%20the%20function%20is,without%20any%20additional%20data%20or
