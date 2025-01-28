@@ -1,6 +1,10 @@
 require("@nomicfoundation/hardhat-verify");
 require("@openzeppelin/hardhat-upgrades");
 require("@typechain/hardhat");
+require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-ethers")
+require("@nomiclabs/hardhat-truffle5");
+require('hardhat-watcher')
 
 // for testing with vitest
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -61,4 +65,15 @@ module.exports = {
       },
     },
   },
-};
+  watcher: {
+    // The task name to run tests = 'test'
+    test: {
+      tasks: [{ command: 'test', params: { testFiles: ['{path}'] } }],
+      files: ['./test/**/*', './scripts/**/*'],
+      verbose: true,
+      clearOnStart: true,
+      start: 'echo Running my test task now..',
+    }
+  }
+}
+

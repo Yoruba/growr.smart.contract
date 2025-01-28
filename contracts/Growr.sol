@@ -5,15 +5,16 @@ pragma solidity ^0.8.28;
 // Import Ownable from the OpenZeppelin Contracts library
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @custom:security-contact hi@ggrow.io
-contract Upgradeable is Initializable, OwnableUpgradeable {
+contract Growr is Initializable, OwnableUpgradeable {
     mapping(address => uint256) public contributions; // keep track of contributions
 
     event FundsReceived(address sender, uint256 amount, bytes32 txHash);
 
     // create const for amount to pay for one year
-    uint256 public constant ONE_YEAR_COST = 1 ether;
+    uint256 public constant ONE_YEAR_COST = 1000;
     uint256 public yearsToTrack;
     bytes32 public txHash;
 
@@ -27,23 +28,39 @@ contract Upgradeable is Initializable, OwnableUpgradeable {
         _disableInitializers();
     }
 
+     function validateValue(uint256 value) public pure  {
+            // check if the amount sent is enough to track for at least one year
+
+            string memory costs =  uintToString(ONE_YEAR_COST);
+            require(
+                value >= ONE_YEAR_COST,
+                string.concat(
+                    "You need to send at least ",
+                    costs,
+                    " wei to track for a year"
+                )
+            );
+
+            // check if the amount is divisible by the cost of one year
+            require(
+                value % ONE_YEAR_COST == 0,
+                "You need to send a multiple of 1 ether to track for a year"
+            );
+
+        }
+
+         function uintToString(uint256 value) public pure returns (string memory) {
+        return Strings.toString(value); 
+    }
+
     // Fallback function to receive Ether and validate the amount
     receive() external payable {
-        // check if the amount sent is enough to track for at least one year
-        require(
-            msg.value >= ONE_YEAR_COST,
-            "You need to send at least 1 ether to track for a year"
-        );
+       
+        // validate the amount sent
+        validateValue(msg.value);
 
-        // check if the amount is divisible by the cost of one year
-        require(
-            msg.value % ONE_YEAR_COST == 0,
-            "You need to send a multiple of 1 ether to track for a year"
-        );
-
-        // get the number of years to track
-        yearsToTrack = msg.value / ONE_YEAR_COST;
-
+            // get the number of years to track
+            yearsToTrack = msg.value / ONE_YEAR_COST;
         // Check if the sender has already contributed
         if (contributions[msg.sender] > 0) {
             // Handle the case where the same wallet sends funds again (e.g., revert the transaction)
