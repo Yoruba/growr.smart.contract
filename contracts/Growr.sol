@@ -6,13 +6,14 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
 
 /// @custom:security-contact hi@ggrow.io
 contract Growr is Initializable, OwnableUpgradeable {
 	mapping(address => uint256) public contributions; // keep track of contributions
 
 	event FundsReceived(address sender, uint256 amount, bytes32 txHash);
+	 event LowValueReceived(address sender, uint256 amount); // Event for low value
+
 
 	// create const for amount to pay for one year
 	uint256 public constant ONE_YEAR_COST = 1000;
@@ -60,13 +61,13 @@ contract Growr is Initializable, OwnableUpgradeable {
 
 	// Fallback function to receive Ether and validate the amount
 	receive() external payable {
-		console.log("Received ", msg.value, " wei from ", msg.sender);
-		// // validate the amount received
+		// validate the amount received
 		// PaymentStatus status = validateValue(msg.value);
 		// // when status if low reject the transaction with a message
-		// if (status == PaymentStatus.Low) {
-		// 	revert(string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST), " wei"));
-		// }
+		//  if (status == PaymentStatus.Low) {
+        //     emit LowValueReceived(msg.sender, msg.value);
+        //     revert(string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST), " wei"));
+        // }
 		// // get the number of years to track
 		// yearsToTrack = msg.value / ONE_YEAR_COST;
 		// // Check if the sender has already contributed
@@ -83,7 +84,7 @@ contract Growr is Initializable, OwnableUpgradeable {
 		// // to trigger the event, we need to pass the hash of the transaction
 		txHash = keccak256(abi.encodePacked(block.timestamp, msg.sender, msg.value));
 		emit FundsReceived(msg.sender, msg.value, txHash);
-		// // todo: sent, transfer to other wallet
+		// todo: sent, transfer to other wallet
 
 	}
 }

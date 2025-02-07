@@ -22,7 +22,7 @@ export async function init() {
 		// Create a contract factory
 		const contractFactory = new ethers.ContractFactory(metadata.abi, metadata.bytecode, wallet)
 
-		return { contractFactory, wallet }
+		return { contractFactory, wallet, provider }
 	} catch (err: any) {
 		console.error('init failed:', err.message)
 		throw err
