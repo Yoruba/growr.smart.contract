@@ -12,7 +12,7 @@ contract Growr is Initializable, OwnableUpgradeable {
 	mapping(address => uint256) public contributions; // keep track of contributions
 
 	event FundsReceived(address sender, uint256 amount, bytes32 txHash);
-	 event LowValueReceived(address sender, uint256 amount); // Event for low value
+	 event InCorrectAmount(address sender, uint256 amount); // Event for low value
 
 
 	// create const for amount to pay for one year
@@ -61,6 +61,7 @@ contract Growr is Initializable, OwnableUpgradeable {
 
 	// Fallback function to receive Ether and validate the amount
 	receive() external payable {
+		    emit InCorrectAmount(msg.sender, msg.value);
 		// validate the amount received
 		// PaymentStatus status = validateValue(msg.value);
 		// // when status if low reject the transaction with a message

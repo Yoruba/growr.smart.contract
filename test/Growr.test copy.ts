@@ -3,6 +3,7 @@ import { Growr } from '../typechain-types/contracts/Growr'
 import { getProxyAddress, runUpgrade, upgrade } from '../scripts/upgrade'
 import { init } from '../scripts/init'
 import { Wallet } from 'ethers'
+import { ethers } from 'hardhat'
 
 describe('Growr', function () {
 	let contract: Growr
@@ -39,9 +40,36 @@ describe('Growr', function () {
 				nonce: nonce,
 			})
 
-			// console.log('transaction', transaction)
-
 			const response = await transaction.wait()
+
+			// console.log('transaction', transaction)
+			// Define the event interface
+			const eventInterface = new ethers.Interface(['event InCorrectAmount(address sender, uint256 amount)'])
+
+			const contractAddress = await contract.getAddress()
+			// Filter the logs for the LowValueReceived event
+
+			// console.log('response', response)
+
+			const logs = response?.logs.filter((log) => log.address === contractAddress)
+			const lowValueReceivedLog = logs?.find((log) => {
+				try {
+					const parsedLog = eventInterface.parseLog(log)
+					return parsedLog?.name === 'InCorrectAmount'
+				} catch (e) {
+					return false
+				}
+			})
+
+			// Decode the log
+			if (lowValueReceivedLog) {
+				const parsedLog = eventInterface.parseLog(lowValueReceivedLog)
+				console.log('InCorrectAmount event:', parsedLog?.args)
+				expect(parsedLog?.args.sender).to.equal(senderWallet.address)
+				expect(parsedLog?.args.amount.toString()).to.equal('1000')
+			} else {
+				throw new Error('InCorrectAmount event not found')
+			}
 
 			// Check if the transaction was successful
 			expect(response?.status).to.be.equal(1)
