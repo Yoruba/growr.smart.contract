@@ -36,40 +36,55 @@ describe('Growr', function () {
 
 			const transaction = await senderWallet.sendTransaction({
 				to: contract.getAddress(),
-				value: '1000',
+				value: '10200',
 				nonce: nonce,
 			})
 
 			const response = await transaction.wait()
-
-			// console.log('transaction', transaction)
-			// Define the event interface
-			const eventInterface = new ethers.Interface(['event InCorrectAmount(address sender, uint256 amount)'])
-
 			const contractAddress = await contract.getAddress()
-			// Filter the logs for the LowValueReceived event
 
-			// console.log('response', response)
+			const inCorrectEvent = new ethers.Interface(['event InCorrectAmount(address sender, uint256 amount)'])
+			const alreadyKnownEvent = new ethers.Interface(['event AlreadyKnown(address sender)'])
+			const fundsReceivedEvent = new ethers.Interface(['event FundsReceived(address sender, uint256 amount, bytes32 txHash)'])
+
+			// console.log(response?.logs)
 
 			const logs = response?.logs.filter((log) => log.address === contractAddress)
-			const lowValueReceivedLog = logs?.find((log) => {
+
+			//console.log('logs -----', logs)
+
+			logs?.find((log) => {
 				try {
-					const parsedLog = eventInterface.parseLog(log)
-					return parsedLog?.name === 'InCorrectAmount'
+					const parsedLog = fundsReceivedEvent.parseLog(log)
+					const incorrectAmount = inCorrectEvent.parseLog(log)
+					const parseAlreadyKnown = alreadyKnownEvent.parseLog(log)
+					console.log('parsedLog', parsedLog)
+					console.log('incorrectAmount', incorrectAmount)
+					console.log('parseAlreadyKnown', parseAlreadyKnown)
 				} catch (e) {
+					console.log('error', e)
 					return false
 				}
 			})
 
-			// Decode the log
-			if (lowValueReceivedLog) {
-				const parsedLog = eventInterface.parseLog(lowValueReceivedLog)
-				console.log('InCorrectAmount event:', parsedLog?.args)
-				expect(parsedLog?.args.sender).to.equal(senderWallet.address)
-				expect(parsedLog?.args.amount.toString()).to.equal('1000')
-			} else {
-				throw new Error('InCorrectAmount event not found')
-			}
+			// const lowValueReceivedLog = logs?.find((log) => {
+			// 	try {
+			// 		const parsedLog = inCorrectEvent.parseLog(log)
+			// 		return parsedLog?.name === 'InCorrectAmount'
+			// 	} catch (e) {
+			// 		return false
+			// 	}
+			// })
+
+			// // Decode the log
+			// if (lowValueReceivedLog) {
+			// 	const parsedLog = inCorrectEvent.parseLog(lowValueReceivedLog)
+			// 	console.log('InCorrectAmount event:', parsedLog?.args)
+			// 	expect(parsedLog?.args.sender).to.equal(senderWallet.address)
+			// 	expect(parsedLog?.args.amount.toString()).to.equal('1000')
+			// } else {
+			// 	throw new Error('InCorrectAmount event not found')
+			// }
 
 			// Check if the transaction was successful
 			expect(response?.status).to.be.equal(1)

@@ -11,15 +11,15 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract Growr is Initializable, OwnableUpgradeable {
 	mapping(address => uint256) public contributions; // keep track of contributions
 
+	// todo: indexed
 	event FundsReceived(address sender, uint256 amount, bytes32 txHash);
-	 event InCorrectAmount(address sender, uint256 amount); // Event for low value
-
+	event InCorrectAmount(address sender, uint256 amount); // Event for low value
+	event AlreadyKnown(address sender); // Event for already known sender
 
 	// create const for amount to pay for one year
 	uint256 public constant ONE_YEAR_COST = 1000;
 	uint256 public yearsToTrack;
 	bytes32 public txHash;
-
 
 	// Add an initializer function
 	function initialize(address initialOwner) public initializer {
@@ -61,20 +61,40 @@ contract Growr is Initializable, OwnableUpgradeable {
 
 	// Fallback function to receive Ether and validate the amount
 	receive() external payable {
-		    emit InCorrectAmount(msg.sender, msg.value);
 		// validate the amount received
+		require(msg.value == ONE_YEAR_COST, "Amount is not correct. Please send 1000 wei");
+		emit AlreadyKnown(msg.sender);
+		emit InCorrectAmount(msg.sender, msg.value);
+
 		// PaymentStatus status = validateValue(msg.value);
 		// // when status if low reject the transaction with a message
-		//  if (status == PaymentStatus.Low) {
-        //     emit LowValueReceived(msg.sender, msg.value);
-        //     revert(string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST), " wei"));
-        // }
+		// if (status == PaymentStatus.Low) {
+		// 	emit InCorrectAmount(msg.sender, msg.value);
+		// 	//  revert(string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST), " wei"));
+		// }
+
+		// if (status == PaymentStatus.High) {
+		// 	emit InCorrectAmount(msg.sender, msg.value);
+		// 	//revert(string.concat("Amount is too high. Please send ", uintToString(ONE_YEAR_COST), " wei"));
+		// }
+
+		// if (status == PaymentStatus.Between) {
+		// 	emit InCorrectAmount(msg.sender, msg.value);
+		// 	//	revert(string.concat("Amount is not a multiple of ", uintToString(ONE_YEAR_COST), " wei"));
+		// }
+
+		// if (status == PaymentStatus.Unknown) {
+		// 	emit InCorrectAmount(msg.sender, msg.value);
+		// 	//	revert(string.concat("Amount is not correct. Please send ", uintToString(ONE_YEAR_COST), " wei"));
+		// }
+
 		// // get the number of years to track
 		// yearsToTrack = msg.value / ONE_YEAR_COST;
 		// // Check if the sender has already contributed
 		// if (contributions[msg.sender] > 0) {
 		// 	// Handle the case where the same wallet sends funds again (e.g., revert the transaction)
-		// 	revert("Sender has already contributed");
+		// 	// emit AlreadyKnown(msg.sender);
+		// 	//revert("Sender has already contributed");
 		// 	// todo: handle if the sender adds more funds for more years
 		// }
 		// // Record the contribution
@@ -83,10 +103,9 @@ contract Growr is Initializable, OwnableUpgradeable {
 		// // todo: web3 add which year to track
 		// // create a hash of the transaction for tracking and emit an event
 		// // to trigger the event, we need to pass the hash of the transaction
-		txHash = keccak256(abi.encodePacked(block.timestamp, msg.sender, msg.value));
-		emit FundsReceived(msg.sender, msg.value, txHash);
+		// txHash = keccak256(abi.encodePacked(block.timestamp, msg.sender, msg.value));
+		// emit FundsReceived(msg.sender, msg.value, txHash);
 		// todo: sent, transfer to other wallet
-
 	}
 }
 
