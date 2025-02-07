@@ -10,13 +10,13 @@ describe('Growr', function () {
 	let address: string
 
 	before(async function () {
-		console.log('before')
 		try {
 			const { contractFactory } = await init()
 			const proxyAddress = await getProxyAddress('unknown-366')
 			factory = contractFactory
 			address = proxyAddress
 			contract = await upgrade(proxyAddress, contractFactory)
+			console.log('contract--------------ffff')
 		} catch (err: any) {
 			console.error('Error:', err.message)
 		}
@@ -30,16 +30,6 @@ describe('Growr', function () {
 	// 		console.error(err.message)
 	// 	}
 	// })
-
-	describe('receive', function () {
-		it('should receive ether', async function () {
-			const initialBalance = await ethers.provider.getBalance(address)
-			console.log('initialBalance', initialBalance.toString())
-
-      // send 1 ether
-      
-		})
-	})
 
 	// it("should record the contribution correctly", async function () {
 	//   const sender = await ethers.getSigner(0);

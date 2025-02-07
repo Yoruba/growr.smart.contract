@@ -11,7 +11,7 @@
     "node": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta start --config=../privatenet/validator --password=qwertyuiop",
     "rpc": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta-eth-rpc-adaptor start --config=../privatenet/eth_rpc_adaptor",
     "check": "curl -X POST -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":67}' http://127.0.0.1:18888/rpc",
-    "test": "npx hardhat watch test",
+    "test": "NODE_ENV=test npx hardhat watch test",
     "watch": "npx onchange 'contracts/**/*.sol' -- npm run prettier",
     "extract": "node extractAbiAndBytecode.js",
     "prettier": "prettier --write --plugin=prettier-plugin-solidity 'contracts/**/*.sol'"
@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.2.0",
-    "@openzeppelin/contracts-upgradeable": "^5.2.0"
+    "@openzeppelin/contracts-upgradeable": "^5.2.0",
+    "ethers-decode-error": "^2.1.3"
   }
 }

@@ -7,8 +7,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
-    "rootDir": "./"
+    "rootDir": "./",
+    "types": ["vitest/globals"]
   },
-  "include": ["./scripts", "./test", "./typechain-types"],
+  "include": ["./scripts", "./test", "./typechain-types", "./interfaces"],
   "files": ["./hardhat.config.ts"]
 }
