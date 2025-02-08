@@ -7,4 +7,6 @@ async function runDeployment(): Promise<void> {
  await deploy(contractFactory, wallet);
 }
 
+runDeployment();
+
 export { runDeployment };

@@ -6,6 +6,8 @@ import fs from 'fs'
 export async function init() {
 	// Get the environment file path from an environment variable
 	try {
+		console.log('init...')
+
 		const envFilePath = process.env.ENV_FILE_PATH || './.env.private'
 		dotenv.config({ path: envFilePath })
 
@@ -37,7 +39,7 @@ export async function deploy(contractFactory: ethers.ContractFactory, wallet: et
 			contractFactory,
 			[wallet.address], // constructor arguments
 			// function call
-			{ initializer: 'initialize' }
+			{ initializer: 'initialize', timeout: 60000 }
 		)
 		// Wait for the deployment transaction to be mined
 		await contract.waitForDeployment()

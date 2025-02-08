@@ -2,6 +2,7 @@ import { upgrades } from 'hardhat'
 import { init } from './init'
 import fs from 'fs'
 import { env } from 'process'
+import { runDeployment } from './deploy'
 
 // see .openzeppelin/<network>.json for the proxy address
 export async function upgrade(proxyAddress: string, contractFactory: any) {
@@ -22,6 +23,11 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 		return contract
 	} catch (err: any) {
 		console.error('upgrade failed:', err.message)
+		// if error message contains proxy create new proxy
+		if (err.message.includes('proxy')) {
+			console.log('creating new contract...')
+			await runDeployment()
+		}
 	}
 }
 

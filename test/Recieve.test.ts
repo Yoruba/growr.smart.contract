@@ -1,93 +1,99 @@
-import { init } from '../scripts/init'
-import { getProxyAddress, upgrade } from '../scripts/upgrade'
-import { Growr } from '../typechain-types'
-import { ethers } from 'hardhat'
 import { expect } from 'chai'
-import { ErrorDecoder, ErrorType } from 'ethers-decode-error'
-import { RpcResponse } from '../interfaces/RpcResponse'
-import { console } from 'inspector'
+import { Growr } from '../typechain-types/contracts/Growr'
+import { getProxyAddress, runUpgrade, upgrade } from '../scripts/upgrade'
+import { init } from '../scripts/init'
 import { Wallet } from 'ethers'
+import { ethers } from 'hardhat'
 
-const errorDecoder = ErrorDecoder.create()
-
-describe('receive', function () {
+describe('Growr', function () {
 	let contract: Growr
 	let factory: any
 	let address: string
 	let senderWallet: Wallet
+	let thetaProvider: any
 
 	before(async function () {
 		try {
-			const { contractFactory, wallet } = await init()
+			const { contractFactory, wallet, provider } = await init()
 			const proxyAddress = await getProxyAddress('unknown-366')
-			senderWallet = wallet
 			factory = contractFactory
 			address = proxyAddress
+			senderWallet = wallet
+			thetaProvider = provider
 			contract = await upgrade(proxyAddress, contractFactory)
 		} catch (err: any) {
 			console.error('Error:', err.message)
 		}
 	})
 
-	describe('payment status', function () {
+	describe('receive', function () {
 		it('should receive ether', async function () {
-			console.debug('-------------------')
-			console.log('contract', contract)
-			const initialBalance = await ethers.provider.getBalance(address)
-			console.log('initialBalance', initialBalance.toString())
-			// expect(true).to.be.false
-		})
+			const initialBalance = await thetaProvider.getBalance(address)
+			// console.log('initialBalance', initialBalance.toString())
 
-		//test if the contract can receive ether
-		it('should receive ether', async function () {
-			const initialBalance = await ethers.provider.getBalance(address)
-			console.log('initialBalance', initialBalance.toString())
+			const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
+			// console.log('nonce', nonce)
 
-			const nonce = await ethers.provider.getTransactionCount(senderWallet.address, 'latest')
-			console.log('nonce', nonce)
+			const transaction = await senderWallet.sendTransaction({
+				to: contract.getAddress(),
+				value: '10200',
+				nonce: nonce,
+			})
 
-			//	const value = parseEther('10000000') // 1 ether
-			try {
-				const transaction = await senderWallet.sendTransaction({
-					to: contract.getAddress(),
-					value: '5000',
-					nonce: nonce,
-				})
+			const response = await transaction.wait()
+			const contractAddress = await contract.getAddress()
 
-				const response = await transaction.wait()
+			const inCorrectEvent = new ethers.Interface(['event InCorrectAmount(address sender, uint256 amount)'])
+			const alreadyKnownEvent = new ethers.Interface(['event AlreadyKnown(address sender)'])
+			const fundsReceivedEvent = new ethers.Interface(['event FundsReceived(address sender, uint256 amount, bytes32 txHash)'])
 
-				console.log('response', response)
+			// console.log(response?.logs)
 
-				const finalBalance = await ethers.provider.getBalance(address)
-				console.log('finalBalance', finalBalance.toString())
+			const logs = response?.logs.filter((log) => log.address === contractAddress)
 
-				// Assert that the final balance is initial balance + 1 ether
-				expect(finalBalance).to.equal(BigInt(initialBalance) + BigInt(5000))
-			} catch (error: any) {
-				// const rpcResponse = error as RpcResponse
-				// const value = rpcResponse.info.payload.params[0].value
-				// console.log('value', value)
+			//console.log('logs -----', logs)
 
-				// get payload params
-				// const payload = error.data
-
-				const { reason, type } = await errorDecoder.decode(error)
-
-				// Prints "ERC20: transfer to the zero address"
-				console.log('Revert reason:', reason)
-				// Prints "true"
-				console.log(type === ErrorType.RevertError)
-
-				console.error(`Transaction failed: ${error.message}`)
-				console.log(JSON.stringify(error, null, 2))
-				if (isError(error, 'ACTION_REJECTED')) {
-					console.error('Error:', error.message)
+			logs?.find((log) => {
+				try {
+					const parsedLog = fundsReceivedEvent.parseLog(log)
+					const incorrectAmount = inCorrectEvent.parseLog(log)
+					const parseAlreadyKnown = alreadyKnownEvent.parseLog(log)
+					console.log('parsedLog', parsedLog)
+					console.log('incorrectAmount', incorrectAmount)
+					console.log('parseAlreadyKnown', parseAlreadyKnown)
+				} catch (e) {
+					console.log('error', e)
+					return false
 				}
+			})
 
-				if (error.receipt) {
-					console.error('Revert reason:', error.receipt.revertReason)
-				}
-			}
+			// const lowValueReceivedLog = logs?.find((log) => {
+			// 	try {
+			// 		const parsedLog = inCorrectEvent.parseLog(log)
+			// 		return parsedLog?.name === 'InCorrectAmount'
+			// 	} catch (e) {
+			// 		return false
+			// 	}
+			// })
+
+			// // Decode the log
+			// if (lowValueReceivedLog) {
+			// 	const parsedLog = inCorrectEvent.parseLog(lowValueReceivedLog)
+			// 	console.log('InCorrectAmount event:', parsedLog?.args)
+			// 	expect(parsedLog?.args.sender).to.equal(senderWallet.address)
+			// 	expect(parsedLog?.args.amount.toString()).to.equal('1000')
+			// } else {
+			// 	throw new Error('InCorrectAmount event not found')
+			// }
+
+			// Check if the transaction was successful
+			expect(response?.status).to.be.equal(1)
+
+			const finalBalance = await thetaProvider.getBalance(address)
+			console.log('finalBalance', finalBalance.toString())
+			//console.log('response', response)
+			// Assert that the final balance is initial balance + 1 ether
+			expect(finalBalance).to.equal(BigInt(initialBalance) + BigInt(1000))
 		})
 	})
 })
