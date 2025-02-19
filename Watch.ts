@@ -11,10 +11,9 @@ async function main() {
 		const address = await getProxyAddress('unknown-366')
 		await Watcher.init(API_URL || '', address)
 		await Watcher.historyFunds()
-		await Watcher.historyAlreadyKnown()	
+		await Watcher.historyTransferredFunds()
 		await Watcher.watchFundsReceived()
-		await Watcher.watchAlreadyKnown()
-		await Watcher.watchActionProposed()
+		await Watcher.watchFundsTransferred()
 	} catch (err) {
 		console.error('Error:', err)
 	}

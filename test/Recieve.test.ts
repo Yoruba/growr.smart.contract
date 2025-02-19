@@ -2,7 +2,9 @@ import { expect } from 'chai'
 import { Growr } from '../typechain-types/contracts/Growr'
 import { getProxyAddress, upgrade } from '../scripts/upgrade'
 import { init } from '../scripts/init'
-import { Wallet } from 'ethers'
+import { Wallet, parseEther } from 'ethers'
+import exp from 'constants'
+import { RpcResponse } from '../interfaces/RpcResponse'
 
 describe('Growr', function () {
 	let contract: Growr
@@ -29,12 +31,13 @@ describe('Growr', function () {
 		it('should not receive ether', async function () {
 			const initialBalance = await thetaProvider.getBalance(address)
 			const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
-			const funds = '1'
+			const fundsInWei = parseEther('999')
+			console.log(`Funds in Wei: ${fundsInWei}`)
 
 			try {
 				const transaction = await senderWallet.sendTransaction({
 					to: contract.getAddress(),
-					value: funds,
+					value: fundsInWei,
 					nonce: nonce,
 				})
 
@@ -43,48 +46,52 @@ describe('Growr', function () {
 
 				const finalBalance = await thetaProvider.getBalance(address)
 				expect(finalBalance).to.equal(initialBalance)
-			} catch (err: any) {}
+			} catch (err: any) {
+				const error = err as RpcResponse
+				console.log(error.shortMessage)
+				// todo: error
+				expect(error.shortMessage).to.be.equal('missing revert data')
+			}
 		})
 
 		it('should receive ether', async function () {
 			// get contribution of sender
 			const contribtution = await contract.getContribution(senderWallet.address)
-			if (contribtution >= 1000) {
-				console.log('------ Already known ------')
-			} else {
-				const initialBalance = await thetaProvider.getBalance(address)
-				const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
-				const funds = '1000'
 
-				const transaction = await senderWallet.sendTransaction({
-					to: contract.getAddress(),
-					value: funds,
-					nonce: nonce,
-				})
+			const initialBalance = await thetaProvider.getBalance(address)
+			const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
+			const funds = '1000'
+			const fundsInWei = parseEther(funds)
+			console.log(`Funds in Wei: ${fundsInWei}`)
 
-				const response = await transaction.wait()
-				expect(response?.status).to.be.equal(1)
+			const transaction = await senderWallet.sendTransaction({
+				to: contract.getAddress(),
+				value: fundsInWei,
+				nonce: nonce,
+			})
 
-				const finalBalance = await thetaProvider.getBalance(address)
-				expect(finalBalance).to.equal(BigInt(initialBalance) + BigInt(funds))
+			const response = await transaction.wait()
+			expect(response?.status).to.be.equal(1)
 
-				// Get all past events (useful for initial loading)
-				const filter = contract.filters.FundsReceived() // All FundsReceived events
+			const finalBalance = await thetaProvider.getBalance(address)
+			expect(finalBalance).to.equal(BigInt(initialBalance) + BigInt(funds))
 
-				// get last block
-				const block = await thetaProvider.getBlockNumber()
-				console.log('Block:', block)
-				// go 5000 blocks back
+			// Get all past events (useful for initial loading)
+			const filter = contract.filters.FundsReceived() // All FundsReceived events
 
-				const events = await contract.queryFilter(filter, block - 10, 'latest') // From block 0 to latest
+			// get last block
+			const block = await thetaProvider.getBlockNumber()
+			console.log('Block:', block)
+			// go 5000 blocks back
 
-				// event FundsReceived(address indexed sender, uint256 amount, uint256 year);
-				events.forEach((event) => {
-					console.log('Funder:', event.args.sender)
-					console.log('Amount:', event.args.amount.toString())
-					console.log('Year:', event.args.year.toString())
-				})
-			}
+			const events = await contract.queryFilter(filter, block - 10, 'latest') // From block 0 to latest
+
+			// event FundsReceived(address indexed sender, uint256 amount, uint256 year);
+			events.forEach((event) => {
+				console.log('Funder:', event.args.sender)
+				console.log('Amount:', event.args.amount.toString())
+				console.log('Year:', event.args.year.toString())
+			})
 		})
 	})
 })

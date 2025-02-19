@@ -34,7 +34,7 @@ export class Watcher {
 			// await Watcher.logs()
 			// await Watcher.logsByAddress()
 			// await Watcher.historyFunds()
-			await Watcher.historyAlreadyKnown()
+			await Watcher.historyTransferredFunds()
 		} catch (err: any) {
 			console.error('init failed:', err.message)
 			// todo: reconnect when connection is lost
@@ -58,34 +58,17 @@ export class Watcher {
 		}
 	}
 
-	// watch AlreadyKnown event
-	static async watchAlreadyKnown() {
-		try {
-			console.log('watching AlreadyKnown...')
-			this.contract.on('AlreadyKnown', (sender: string, event: any) => {
-				// console.log('event:', event)
-				console.log('------------------- already known -------------------')
-				const blockNumber = event.log.blockNumber
-				const transactionHash = event.log.transactionHash
-				const smartContractAddress = event.log.address
-				console.log(`Block: ${blockNumber} TxHash: ${transactionHash} \nFunder: ${sender} to ${smartContractAddress}`)
-			})
-		} catch (err: any) {
-			console.error('watch failed:', err.message)
-		}
-	}
-
 	// watch action proposed
-	static async watchActionProposed() {
+	static async watchFundsTransferred() {
 		try {
-			console.log('watching ActionProposed...')
-			this.contract.on('ActionProposed', (sender: string, action: string, event: any) => {
+			console.log('watching funds transferred...')
+			this.contract.on('FundsTransferred', (sender: string, amount: string, event: any) => {
 				// console.log('event:', event)
-				console.log('------------------- action proposed -------------------')
+				console.log('------------------- funds transferred -------------------')
 				const blockNumber = event.log.blockNumber
 				const transactionHash = event.log.transactionHash
 				const smartContractAddress = event.log.address
-				console.log(`Block: ${blockNumber} TxHash: ${transactionHash} \nProposer: ${sender} Action: ${action} to ${smartContractAddress}`)
+				console.log(`Block: ${blockNumber} TxHash: ${transactionHash} \nProposer: ${sender} Action: ${amount} to ${smartContractAddress}`)
 			})
 		} catch (err: any) {
 			console.error('watch failed:', err.message)
@@ -142,6 +125,7 @@ export class Watcher {
 		console.log(`Funds history from block: ${from} to ${block} length: ${events.length}`)
 
 		// event FundsReceived(address indexed sender, uint256 amount, uint256 year);
+		console.log('------------------- funds history -------------------')
 		events.forEach((event: any) => {
 			const { sender, amount, year } = event.args
 			const blockNumber = event.blockNumber
@@ -150,22 +134,23 @@ export class Watcher {
 		})
 	}
 
-	// history of already known
-	static async historyAlreadyKnown() {
-		const filter = this.contract.filters.AlreadyKnown()
+	// history of transfer funds
+	static async historyTransferredFunds() {
+		const filter = this.contract.filters.FundsTransferred()
 		const block = await this.provider.getBlockNumber()
 
 		const from = block - 1000
 		const events = await this.contract.queryFilter(filter, from, 'latest')
 
-		console.log(`Already know history from block: ${from} to ${block} length: ${events.length}`)
+		console.log(`Funds transferred history from block: ${from} to ${block} length: ${events.length}`)
 
-		// event AlreadyKnown(address indexed sender);
+		// event FundsTransferred(address indexed sender, uint256 amount);
+		console.log('------------------- transferred history -------------------')
 		events.forEach((event: any) => {
-			const { sender } = event.args
+			const { sender, amount } = event.args
 			const blockNumber = event.blockNumber
 			const transactionHash = event.transactionHash
-			console.log(`Block: ${blockNumber} TxHash: ${transactionHash} \nFunder: ${sender}`)
+			console.log(`Block: ${blockNumber} TxHash: ${transactionHash} \nProposer: ${sender} Amount: ${amount}`)
 		})
 	}
 }
