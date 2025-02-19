@@ -11,15 +11,11 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract Growr is Initializable, OwnableUpgradeable {
 	mapping(address => uint256) public contributions; // keep track of contributions
 
-	// todo: indexed
 	event FundsReceived(address indexed sender, uint256 amount, uint256 year);
-	// event InCorrectAmount(address sender, uint256 amount); // Event for low value
-	// event AlreadyKnown(address sender); // Event for already known sender
 
 	// create const for amount to pay for one year
 	uint256 public constant ONE_YEAR_COST = 1000;
 	uint256 public constant YEAR = 2024;
-	bytes32 public txHash;
 
 	// Add an initializer function
 	function initialize(address initialOwner) public initializer {
@@ -45,25 +41,39 @@ contract Growr is Initializable, OwnableUpgradeable {
 		return YEAR;
 	}
 
+	// create function that returns the contribution of the sender
+	function getContribution(address contributorAddress) public view returns (uint256) {
+		return contributions[contributorAddress];
+	}
+
+	//  function transferToOwner() public onlyOwner {
+		
+	// 	// Transfer the balance to the owner
+	// 	payable(owner()).transfer(address(this).balance);
+    // }
+
+
 	// Fallback function to receive Ether and validate the amount
 	receive() external payable {
 		// validate the amount received
-		require(msg.value == ONE_YEAR_COST, string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST)));
-		// emit InCorrectAmount(msg.sender, msg.value);
+		if(msg.value != ONE_YEAR_COST)
+		revert(string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST)));
+		
+		// Check if the sender has already contributed
+		if (contributions[msg.sender] >= ONE_YEAR_COST) {
+			// Handle the case where the same wallet sends funds again (e.g., revert the transaction)
+			// because state is reverted, no events are emitted
+			revert("Sender has already contributed");
+		}
+		else {
+		// Record the contribution and sum the amount of earlier contributions
+		contributions[msg.sender] += msg.value;
+		}
 
-		// // Check if the sender has already contributed
-		// if (contributions[msg.sender] > 0) {
-		// 	// Handle the case where the same wallet sends funds again (e.g., revert the transaction)
-		// 	emit AlreadyKnown(msg.sender);
-		// 	revert("Sender has already contributed");
-		// 	// todo: handle if the sender adds more funds for more years
-		// }
-		// // Record the contribution
-		// contributions[msg.sender] = msg.value;
 
 		// the receive function doesn't return anything, therefore we need the read the logs
 		emit FundsReceived(msg.sender, msg.value, YEAR);
-		// //		todo: sent, transfer to other wallet
+		 //	todo: sent, transfer to other wallet
 	}
 }
 

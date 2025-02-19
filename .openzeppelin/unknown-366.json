@@ -2,30 +2,15 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x4abc2EbC48620CB8bA7cD9523693b2cb79562707",
-      "txHash": "0x146611b42c346d7ad31b607343447ab1e485e23cbf33e9c7f01d879bd0b63656",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xe242F556a36615684423E76F74D75Ce3364dc951",
-      "txHash": "0x4a3d519185fc7e90405c51fee2850f220211c1d331cd4b05369ee430c577dbfe",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x8FD0f4a9fA1E802E484bFbc4bdF30421Bb375805",
-      "txHash": "0x3acc5b33141601ad8526292f555da18f25dc4ad8b7583d7ccfaaf48c66e9d2d8",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xaD6204A250a18C787D684CCedECEf0c724f2dd96",
-      "txHash": "0xd0a244c4b9b40af02121fe1ab1005a10ed11f1b2b16f98b4dd0f6616acbc56bc",
+      "address": "0xaCc1acc6fc47193bc15451e378cd26F9d82735A7",
+      "txHash": "0x18028dd20f832a2406e1298b6ba2d3afe22516a5f329d0587806a7e0798b054c",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "fecdb53180cf2b7e5878969297f6fe43ec9c8a20bf0675f4bcc82337a1271b90": {
-      "address": "0x85DE14C7dF8F0E5E90B16A46641ebb28e5db66E7",
-      "txHash": "0x55b851327232034e25c46e6bd9520383b0b079144d8ae0bca63f4b3b74850291",
+    "05e319df7fbff21f6bdf0963498361dd70bc5edc3ee6a9511628c6ba68a3b35d": {
+      "address": "0x4A4242e46c50d11211055cDCd5C33d2798fAa591",
+      "txHash": "0x21cb2d83f3d24cdd5bdfc19fda5aef79a417528c0c776f1ff1ce054ce256c279",
       "layout": {
         "solcVersion": "0.8.28",
         "storage": [
@@ -36,14 +21,6 @@
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "Growr",
             "src": "contracts/Growr.sol:12"
-          },
-          {
-            "label": "txHash",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_bytes32",
-            "contract": "Growr",
-            "src": "contracts/Growr.sol:22"
           }
         ],
         "types": {
@@ -88,10 +65,6 @@
           "t_uint64": {
             "label": "uint64",
             "numberOfBytes": "8"
-          },
-          "t_bytes32": {
-            "label": "bytes32",
-            "numberOfBytes": "32"
           },
           "t_mapping(t_address,t_uint256)": {
             "label": "mapping(address => uint256)",

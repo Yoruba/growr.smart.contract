@@ -11,7 +11,7 @@ describe('Growr', function () {
 	let senderWallet: Wallet
 	let thetaProvider: any
 
-	before(async function () {
+	beforeEach(async function () {
 		try {
 			const { contractFactory, wallet, provider } = await init()
 			const proxyAddress = await getProxyAddress('unknown-366')
@@ -26,39 +26,65 @@ describe('Growr', function () {
 	})
 
 	describe('receive', function () {
-		it('should receive ether', async function () {
+		it('should not receive ether', async function () {
 			const initialBalance = await thetaProvider.getBalance(address)
 			const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
-			const funds = '1000'
+			const funds = '1'
 
-			const transaction = await senderWallet.sendTransaction({
-				to: contract.getAddress(),
-				value: funds,
-				nonce: nonce,
-			})
+			try {
+				const transaction = await senderWallet.sendTransaction({
+					to: contract.getAddress(),
+					value: funds,
+					nonce: nonce,
+				})
 
-			const response = await transaction.wait()
-			expect(response?.status).to.be.equal(1)
+				const response = await transaction.wait()
+				expect(response?.status).to.be.equal(0)
 
-			const finalBalance = await thetaProvider.getBalance(address)
-			expect(finalBalance).to.equal(BigInt(initialBalance) + BigInt(funds))
+				const finalBalance = await thetaProvider.getBalance(address)
+				expect(finalBalance).to.equal(initialBalance)
+			} catch (err: any) {}
+		})
 
-			// Get all past events (useful for initial loading)
-			const filter = contract.filters.FundsReceived() // All FundsReceived events
+		it('should receive ether', async function () {
+			// get contribution of sender
+			const contribtution = await contract.getContribution(senderWallet.address)
+			if (contribtution >= 1000) {
+				console.log('------ Already known ------')
+			} else {
+				const initialBalance = await thetaProvider.getBalance(address)
+				const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
+				const funds = '1000'
 
-			// get last block
-			const block = await thetaProvider.getBlockNumber()
-			console.log('Block:', block)
-			// go 5000 blocks back
+				const transaction = await senderWallet.sendTransaction({
+					to: contract.getAddress(),
+					value: funds,
+					nonce: nonce,
+				})
 
-			const events = await contract.queryFilter(filter, block - 10, 'latest') // From block 0 to latest
+				const response = await transaction.wait()
+				expect(response?.status).to.be.equal(1)
 
-			// event FundsReceived(address indexed sender, uint256 amount, uint256 year);
-			events.forEach((event) => {
-				console.log('Funder:', event.args.sender)
-				console.log('Amount:', event.args.amount.toString())
-				console.log('Year:', event.args.year.toString())
-			})
+				const finalBalance = await thetaProvider.getBalance(address)
+				expect(finalBalance).to.equal(BigInt(initialBalance) + BigInt(funds))
+
+				// Get all past events (useful for initial loading)
+				const filter = contract.filters.FundsReceived() // All FundsReceived events
+
+				// get last block
+				const block = await thetaProvider.getBlockNumber()
+				console.log('Block:', block)
+				// go 5000 blocks back
+
+				const events = await contract.queryFilter(filter, block - 10, 'latest') // From block 0 to latest
+
+				// event FundsReceived(address indexed sender, uint256 amount, uint256 year);
+				events.forEach((event) => {
+					console.log('Funder:', event.args.sender)
+					console.log('Amount:', event.args.amount.toString())
+					console.log('Year:', event.args.year.toString())
+				})
+			}
 		})
 	})
 })
