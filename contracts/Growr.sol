@@ -12,7 +12,7 @@ contract Growr is Initializable, OwnableUpgradeable {
 	mapping(address => uint256) public contributions; // keep track of contributions
 
 	// todo: indexed
-	event FundsReceived(address sender, uint256 amount, bytes32 txHash);
+	event FundsReceived(address indexed sender, uint256 amount, uint256 year);
 	// event InCorrectAmount(address sender, uint256 amount); // Event for low value
 	// event AlreadyKnown(address sender); // Event for already known sender
 
@@ -47,8 +47,8 @@ contract Growr is Initializable, OwnableUpgradeable {
 
 	// Fallback function to receive Ether and validate the amount
 	receive() external payable {
-		// // validate the amount received
-		// require(msg.value == ONE_YEAR_COST, string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST)));
+		// validate the amount received
+		require(msg.value == ONE_YEAR_COST, string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST)));
 		// emit InCorrectAmount(msg.sender, msg.value);
 
 		// // Check if the sender has already contributed
@@ -61,12 +61,8 @@ contract Growr is Initializable, OwnableUpgradeable {
 		// // Record the contribution
 		// contributions[msg.sender] = msg.value;
 
-		// create a hash of the transaction for tracking and emit an event
-		// to trigger the event, we need to pass the hash of the transaction
-		// the receive function doesn't return anything
-		// to get the hash of the transaction, read to logs
-		txHash = keccak256(abi.encodePacked(block.timestamp, msg.sender, msg.value, YEAR));
-		emit FundsReceived(msg.sender, msg.value, txHash);
+		// the receive function doesn't return anything, therefore we need the read the logs
+		emit FundsReceived(msg.sender, msg.value, YEAR);
 		// //		todo: sent, transfer to other wallet
 	}
 }

@@ -42,6 +42,8 @@ export async function getProxyAddress(network: string) {
 		const jsonFile = `.openzeppelin/${network}.json`
 		// console.log(`reading proxy address from ${jsonFile}`)
 		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+		// first address is the proxy address
+		// others are implementation addresses
 		return metadata.proxies[0].address
 	} catch (err: any) {
 		console.error('getProxyAddress failed:', err.message)

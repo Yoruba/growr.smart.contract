@@ -1,9 +1,8 @@
 import { expect } from 'chai'
 import { Growr } from '../typechain-types/contracts/Growr'
-import { getProxyAddress, runUpgrade, upgrade } from '../scripts/upgrade'
+import { getProxyAddress, upgrade } from '../scripts/upgrade'
 import { init } from '../scripts/init'
 import { Wallet } from 'ethers'
-import { ethers } from 'hardhat'
 
 describe('Growr', function () {
 	let contract: Growr
@@ -43,6 +42,23 @@ describe('Growr', function () {
 
 			const finalBalance = await thetaProvider.getBalance(address)
 			expect(finalBalance).to.equal(BigInt(initialBalance) + BigInt(funds))
+
+			// Get all past events (useful for initial loading)
+			const filter = contract.filters.FundsReceived() // All FundsReceived events
+
+			// get last block
+			const block = await thetaProvider.getBlockNumber()
+			console.log('Block:', block)
+			// go 5000 blocks back
+
+			const events = await contract.queryFilter(filter, block - 10, 'latest') // From block 0 to latest
+
+			// event FundsReceived(address indexed sender, uint256 amount, uint256 year);
+			events.forEach((event) => {
+				console.log('Funder:', event.args.sender)
+				console.log('Amount:', event.args.amount.toString())
+				console.log('Year:', event.args.year.toString())
+			})
 		})
 	})
 })

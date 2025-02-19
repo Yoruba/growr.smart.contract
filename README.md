@@ -1,5 +1,10 @@
 # Theta
 
+# Errors
+could not coalesce error | delete 366.json file and start again
+
+contrtact adress is 0xe242F556a36615684423E76F74D75Ce3364dc951
+
 https://docs.thetatoken.org/docs/turing-complete-smart-contract-support
 
 # Setup project

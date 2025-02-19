@@ -13,6 +13,7 @@
     "rpc": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta-eth-rpc-adaptor start --config=../privatenet/eth_rpc_adaptor",
     "check": "curl -X POST -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":67}' http://127.0.0.1:18888/rpc",
     "test": "NODE_ENV=test npx hardhat watch test",
+    "log": "nodemon",
     "watch": "npx onchange 'contracts/**/*.sol' -- npm run prettier",
     "extract": "node extractAbiAndBytecode.js",
     "prettier": "prettier --write --plugin=prettier-plugin-solidity 'contracts/**/*.sol'"
@@ -35,6 +36,7 @@
     "ethers": "^6.13.5",
     "hardhat": "^2.22.18",
     "hardhat-watcher": "^2.5.0",
+    "nodemon": "^3.1.9",
     "prettier": "^3.4.2",
     "prettier-plugin-solidity": "^1.4.2",
     "ts-node": "^10.9.2",
