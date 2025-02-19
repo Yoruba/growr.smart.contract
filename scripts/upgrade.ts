@@ -20,6 +20,11 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 
 		console.log('proxy address   :', proxyAddress)
 		console.log('contract address:', contract.target)
+
+		if (!contract) {
+			throw new Error('-------------- Contract is undefined --------------')
+		}
+
 		return contract
 	} catch (err: any) {
 		console.error('upgrade failed:', err.message)

@@ -13,12 +13,12 @@ contract Growr is Initializable, OwnableUpgradeable {
 
 	// todo: indexed
 	event FundsReceived(address sender, uint256 amount, bytes32 txHash);
-	event InCorrectAmount(address sender, uint256 amount); // Event for low value
-	event AlreadyKnown(address sender); // Event for already known sender
+	// event InCorrectAmount(address sender, uint256 amount); // Event for low value
+	// event AlreadyKnown(address sender); // Event for already known sender
 
 	// create const for amount to pay for one year
 	uint256 public constant ONE_YEAR_COST = 1000;
-	uint256 public yearsToTrack;
+	uint256 public constant YEAR = 2024;
 	bytes32 public txHash;
 
 	// Add an initializer function
@@ -31,81 +31,43 @@ contract Growr is Initializable, OwnableUpgradeable {
 		_disableInitializers();
 	}
 
-	// enum with low, high, between and ok
-	enum PaymentStatus {
-		Low, // 0
-		High, // 1
-		Between, // 2
-		Ok, // 3
-		Multiply, // 4
-		Unknown // 5
-	}
-
-	function multiplier(uint256 value) public pure returns (bool) {
-		return value % ONE_YEAR_COST == 0;
-	}
-
-	function validateValue(uint256 value) public pure returns (PaymentStatus) {
-		if (value == ONE_YEAR_COST) return PaymentStatus.Ok;
-		if (value < ONE_YEAR_COST) return PaymentStatus.Low;
-		if (multiplier(value)) return PaymentStatus.Multiply;
-		if (!multiplier(value)) return PaymentStatus.Between;
-		// todo: check if the amount is too high
-		if (value > ONE_YEAR_COST) return PaymentStatus.High;
-		return PaymentStatus.Unknown;
-	}
-
 	function uintToString(uint256 value) public pure returns (string memory) {
 		return Strings.toString(value);
 	}
 
+	// create function that returns the balance of the contract
+	function getBalance() public view returns (uint256) {
+		return address(this).balance;
+	}
+
+	// create function that returns the year
+	function getYear() public pure returns (uint256) {
+		return YEAR;
+	}
+
 	// Fallback function to receive Ether and validate the amount
 	receive() external payable {
-		// validate the amount received
-		require(msg.value == ONE_YEAR_COST, "Amount is not correct. Please send 1000 wei");
-		emit AlreadyKnown(msg.sender);
-		emit InCorrectAmount(msg.sender, msg.value);
+		// // validate the amount received
+		// require(msg.value == ONE_YEAR_COST, string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST)));
+		// emit InCorrectAmount(msg.sender, msg.value);
 
-		// PaymentStatus status = validateValue(msg.value);
-		// // when status if low reject the transaction with a message
-		// if (status == PaymentStatus.Low) {
-		// 	emit InCorrectAmount(msg.sender, msg.value);
-		// 	//  revert(string.concat("Amount is too low. Please send ", uintToString(ONE_YEAR_COST), " wei"));
-		// }
-
-		// if (status == PaymentStatus.High) {
-		// 	emit InCorrectAmount(msg.sender, msg.value);
-		// 	//revert(string.concat("Amount is too high. Please send ", uintToString(ONE_YEAR_COST), " wei"));
-		// }
-
-		// if (status == PaymentStatus.Between) {
-		// 	emit InCorrectAmount(msg.sender, msg.value);
-		// 	//	revert(string.concat("Amount is not a multiple of ", uintToString(ONE_YEAR_COST), " wei"));
-		// }
-
-		// if (status == PaymentStatus.Unknown) {
-		// 	emit InCorrectAmount(msg.sender, msg.value);
-		// 	//	revert(string.concat("Amount is not correct. Please send ", uintToString(ONE_YEAR_COST), " wei"));
-		// }
-
-		// // get the number of years to track
-		// yearsToTrack = msg.value / ONE_YEAR_COST;
 		// // Check if the sender has already contributed
 		// if (contributions[msg.sender] > 0) {
 		// 	// Handle the case where the same wallet sends funds again (e.g., revert the transaction)
-		// 	// emit AlreadyKnown(msg.sender);
-		// 	//revert("Sender has already contributed");
+		// 	emit AlreadyKnown(msg.sender);
+		// 	revert("Sender has already contributed");
 		// 	// todo: handle if the sender adds more funds for more years
 		// }
 		// // Record the contribution
 		// contributions[msg.sender] = msg.value;
-		// // todo: web3 current year can be found by the tx timestamp
-		// // todo: web3 add which year to track
-		// // create a hash of the transaction for tracking and emit an event
-		// // to trigger the event, we need to pass the hash of the transaction
-		// txHash = keccak256(abi.encodePacked(block.timestamp, msg.sender, msg.value));
-		// emit FundsReceived(msg.sender, msg.value, txHash);
-		// todo: sent, transfer to other wallet
+
+		// create a hash of the transaction for tracking and emit an event
+		// to trigger the event, we need to pass the hash of the transaction
+		// the receive function doesn't return anything
+		// to get the hash of the transaction, read to logs
+		txHash = keccak256(abi.encodePacked(block.timestamp, msg.sender, msg.value, YEAR));
+		emit FundsReceived(msg.sender, msg.value, txHash);
+		// //		todo: sent, transfer to other wallet
 	}
 }
 
