@@ -4,7 +4,6 @@
   "description": "ggrowr rewards",
   "scripts": {
     "types": "npx hardhat typechain",
-    "deploy": "ts-node scripts/deploy.ts",
     "deploy-private": "npm run types && ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/deploy.ts",
     "deploy-test": "npm run types && ENV_FILE_PATH=./.env.test npx hardhat run  --network theta_testnet scripts/deploy.ts",
     "upgrade-private": "npm run types && ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/upgrade.ts",

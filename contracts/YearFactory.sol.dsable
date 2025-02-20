@@ -1,0 +1,58 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
+
+// Import Ownable from the OpenZeppelin Contracts library
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+
+// @custom:security-contact hi@ggrow.io
+// The YearFactory contract manages the deployment of Year contracts.
+contract YearFactory is Initializable, OwnableUpgradeable {
+	address public implementation; // Address of the Year contract implementation
+	mapping(uint256 => address) public deployedYears; // Mapping of year to contract address
+
+	event YearDeployed(uint256 year, address contractAddress);
+
+	/// @custom:oz-upgrades-unsafe-allow constructor
+	constructor() {
+		_disableInitializers();
+	}
+
+	function initialize(address initialOwner, address _implementation) public initializer {
+		__Ownable_init(initialOwner);
+		implementation = _implementation;
+	}
+
+	function deployYear(uint256 year) public onlyOwner {
+		// check if year is year like YYYY
+		require(year >= 2017 && year <= 2060, "Invalid year");
+
+		require(deployedYears[year] == address(0), "Year already deployed");
+
+		
+
+		// Deploy a new proxy contract pointing to the implementation
+		bytes memory data = abi.encodeWithSignature("initialize(address)", owner()); // Initialize with the factory owner as the year contract owner.
+		// Proxy Pattern: The factory deploys proxy contracts. Each proxy points to the same Year implementation contract.
+		// This is how upgrades work: you deploy a new implementation, and then tell the proxies to point to it.
+		ERC1967Proxy proxy = new ERC1967Proxy(implementation, data);
+
+		deployedYears[year] = address(proxy);
+		emit YearDeployed(year, address(proxy));
+	}
+
+	// returns the contract address for a given year
+	// can be used to interact with the contract or upgrade it
+	function getYearContract(uint256 year) public view returns (address) {
+		return deployedYears[year];
+	}
+
+	// Optional: Function to update the implementation contract (important for upgrades)
+	// Allows the owner of the factory to update the implementation contract.
+	// This is how you upgrade the Year contract logic.
+	function setImplementation(address _implementation) public onlyOwner {
+		implementation = _implementation;
+	}
+}

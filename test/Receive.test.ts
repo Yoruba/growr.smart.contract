@@ -1,15 +1,14 @@
 import { expect } from 'chai'
-import { Growr } from '../typechain-types/contracts/Growr'
 import { getProxyAddress, upgrade } from '../scripts/upgrade'
 import { init } from '../scripts/init'
 import { Wallet, parseEther } from 'ethers'
-import exp from 'constants'
+import { Year } from '../typechain-types'
 import { RpcResponse } from '../interfaces/RpcResponse'
 
-describe('Growr', function () {
-	let contract: Growr
+describe('Receive', function () {
+	let contract: Year
 	let factory: any
-	let address: string
+	let contractProxyAddress: string
 	let senderWallet: Wallet
 	let thetaProvider: any
 
@@ -18,7 +17,7 @@ describe('Growr', function () {
 			const { contractFactory, wallet, provider } = await init()
 			const proxyAddress = await getProxyAddress('unknown-366')
 			factory = contractFactory
-			address = proxyAddress
+			contractProxyAddress = proxyAddress
 			senderWallet = wallet
 			thetaProvider = provider
 			contract = await upgrade(proxyAddress, contractFactory)
@@ -29,7 +28,7 @@ describe('Growr', function () {
 
 	describe('receive', function () {
 		it('should not receive ether', async function () {
-			const initialBalance = await thetaProvider.getBalance(address)
+			const initialBalance = await thetaProvider.getBalance(contractProxyAddress)
 			const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
 			const fundsInWei = parseEther('999')
 			console.log(`Funds in Wei: ${fundsInWei}`)
@@ -44,28 +43,42 @@ describe('Growr', function () {
 				const response = await transaction.wait()
 				expect(response?.status).to.be.equal(0)
 
-				const finalBalance = await thetaProvider.getBalance(address)
+				const finalBalance = await thetaProvider.getBalance(contractProxyAddress)
 				expect(finalBalance).to.equal(initialBalance)
 			} catch (err: any) {
 				const error = err as RpcResponse
 				console.log(error.shortMessage)
-				// todo: error
 				expect(error.shortMessage).to.be.equal('missing revert data')
 			}
 		})
 
 		it('should receive ether', async function () {
-			// get contribution of sender
-			const contribtution = await contract.getContribution(senderWallet.address)
+			const initialBalance = await thetaProvider.getBalance(contractProxyAddress)
 
-			const initialBalance = await thetaProvider.getBalance(address)
+			// get contribution of sender
+			const contribution = await contract.getContribution(senderWallet.address)
+			console.log('Contribution:', contribution.toString())
+
+			if (contribution > 0) {
+				console.log('Sender already contributed')
+				// reset sender contributions
+				const resetNonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
+				const reset = await contract.resetContribution(senderWallet.address, { nonce: resetNonce })
+				const resetResponse = await reset.wait()
+				expect(resetResponse?.status).to.be.equal(1)
+
+				const finalContributions = await contract.getContribution(senderWallet.address)
+
+				console.log(`Final Contribution: ${finalContributions.toString()}`)
+			}
+
 			const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
 			const funds = '1000'
 			const fundsInWei = parseEther(funds)
 			console.log(`Funds in Wei: ${fundsInWei}`)
 
 			const transaction = await senderWallet.sendTransaction({
-				to: contract.getAddress(),
+				to: contractProxyAddress,
 				value: fundsInWei,
 				nonce: nonce,
 			})
@@ -73,8 +86,13 @@ describe('Growr', function () {
 			const response = await transaction.wait()
 			expect(response?.status).to.be.equal(1)
 
-			const finalBalance = await thetaProvider.getBalance(address)
-			expect(finalBalance).to.equal(BigInt(initialBalance) + BigInt(funds))
+			const contractBalance = await contract.getBalance()
+			console.log('Contract Balance:', contractBalance.toString())
+
+			const finalBalance = await thetaProvider.getBalance(contractProxyAddress)
+			console.log('Final Balance:', finalBalance.toString())
+
+			expect(finalBalance).to.equal(BigInt(initialBalance) + BigInt(fundsInWei))
 
 			// Get all past events (useful for initial loading)
 			const filter = contract.filters.FundsReceived() // All FundsReceived events

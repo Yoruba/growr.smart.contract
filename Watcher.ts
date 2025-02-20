@@ -6,14 +6,13 @@ export class Watcher {
 	static contract: any
 	static provider: JsonRpcProvider
 
-	static async init(rpcUrl: string, smartContactAddress: string) {
+	static async init(rpcUrl: string, smartContactAddress: string, contractName: string) {
 		try {
 			console.log('init...')
 
 			const envFilePath = process.env.ENV_FILE_PATH || './.env.private'
 			dotenv.config({ path: envFilePath })
 
-			const contractName = 'Growr'
 			const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
 			this.provider = new ethers.JsonRpcProvider(rpcUrl)
 
@@ -47,11 +46,12 @@ export class Watcher {
 			console.log('watching funds received...')
 			this.contract.on('FundsReceived', (sender: string, amount: string, year: string, event: any) => {
 				// console.log('event:', event)
-				console.log('------------------- funds received -------------------')
 				const blockNumber = event.log.blockNumber
 				const transactionHash = event.log.transactionHash
 				const smartContractAddress = event.log.address
-				console.log(`Block: ${blockNumber} TxHash: ${transactionHash} \nFunder: ${sender} Amount: ${amount} Year: ${year} to ${smartContractAddress}`)
+				console.log(
+					`[RECEIVED] Amount: ${amount} Year: ${year} to ${smartContractAddress} Block: ${blockNumber} TxHash: ${transactionHash} Funder: ${sender}`
+				)
 			})
 		} catch (err: any) {
 			console.error('watch failed:', err.message)
@@ -61,14 +61,25 @@ export class Watcher {
 	// watch action proposed
 	static async watchFundsTransferred() {
 		try {
-			console.log('watching funds transferred...')
-			this.contract.on('FundsTransferred', (sender: string, amount: string, event: any) => {
+			console.log('watching funds Withdrawal...')
+			this.contract.on('Withdrawal', (sender: string, amount: string, event: any) => {
 				// console.log('event:', event)
-				console.log('------------------- funds transferred -------------------')
 				const blockNumber = event.log.blockNumber
 				const transactionHash = event.log.transactionHash
 				const smartContractAddress = event.log.address
-				console.log(`Block: ${blockNumber} TxHash: ${transactionHash} \nProposer: ${sender} Action: ${amount} to ${smartContractAddress}`)
+				console.warn(`[TRANSFERRED] Amount: ${amount} to ${smartContractAddress} Block: ${blockNumber} TxHash: ${transactionHash} Proposer: ${sender}`)
+			})
+		} catch (err: any) {
+			console.error('watch failed:', err.message)
+		}
+	}
+
+	// watch Trace
+	static async watchTrace() {
+		try {
+			console.log('watching trace...')
+			this.provider.on('Trace', (functionCall: string, message: string) => {
+				console.log(`[TRACE] Function Call: ${functionCall} Message: ${message}`)
 			})
 		} catch (err: any) {
 			console.error('watch failed:', err.message)
@@ -136,16 +147,16 @@ export class Watcher {
 
 	// history of transfer funds
 	static async historyTransferredFunds() {
-		const filter = this.contract.filters.FundsTransferred()
+		const filter = this.contract.filters.Withdrawal()
 		const block = await this.provider.getBlockNumber()
 
 		const from = block - 1000
 		const events = await this.contract.queryFilter(filter, from, 'latest')
 
-		console.log(`Funds transferred history from block: ${from} to ${block} length: ${events.length}`)
+		console.log(`Funds Withdrawal history from block: ${from} to ${block} length: ${events.length}`)
 
 		// event FundsTransferred(address indexed sender, uint256 amount);
-		console.log('------------------- transferred history -------------------')
+		console.log('------------------- Withdrawal history -------------------')
 		events.forEach((event: any) => {
 			const { sender, amount } = event.args
 			const blockNumber = event.blockNumber

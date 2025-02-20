@@ -4,12 +4,13 @@ import { getProxyAddress } from './scripts/upgrade' // Adjust the path as necess
 
 async function main() {
 	try {
+		const contractName = 'Year'
 		const envFilePath = process.env.ENV_FILE_PATH || './.env.private'
 		dotenv.config({ path: envFilePath })
 
 		const { API_URL } = process.env
 		const address = await getProxyAddress('unknown-366')
-		await Watcher.init(API_URL || '', address)
+		await Watcher.init(API_URL || '', address, contractName)
 		await Watcher.historyFunds()
 		await Watcher.historyTransferredFunds()
 		await Watcher.watchFundsReceived()

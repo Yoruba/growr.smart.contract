@@ -1,10 +1,11 @@
 import { expect } from 'chai'
-import { Growr } from '../typechain-types/contracts/Growr'
 import { getProxyAddress, upgrade } from '../scripts/upgrade'
 import { init } from '../scripts/init'
+import { Year } from '../typechain-types'
+import { ethers, parseEther } from 'ethers';
 
-describe('Growr', function () {
-	let contract: Growr
+describe('Functions', function () {
+	let contract: Year
 	let factory: any
 	let address: string
 
@@ -33,4 +34,20 @@ describe('Growr', function () {
 			expect(balance).to.equal(0)
 		})
 	})
+
+	describe('getCost', function () {
+		it('should return the cost', async function () {
+			const cost = await contract.getCost()
+			expect(cost).to.equal(ethers.parseEther('1000'))
+		})
+	})
+
+	// get withdrawal limit
+	describe('getWithdrawalLimit', function () {
+		it('should return the withdrawal limit', async function () {
+			const limit = await contract.getWithdrawalLimit()
+			expect(limit).to.equal(ethers.parseEther('5000'))
+		})
+	})
+
 })
