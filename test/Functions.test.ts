@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import { getProxyAddress, upgrade } from '../scripts/upgrade'
-import { init } from '../scripts/init'
+import { getProxyAddress, upgrade } from '../scripts/year/upgrade'
+import { initYear } from '../scripts/year/init'
 import { Year } from '../typechain-types'
-import { ethers, parseEther } from 'ethers';
+import { ethers, parseEther } from 'ethers'
 
 describe('Functions', function () {
 	let contract: Year
@@ -11,7 +11,7 @@ describe('Functions', function () {
 
 	before(async function () {
 		try {
-			const { contractFactory } = await init()
+			const { contractFactory } = await initYear()
 			const proxyAddress = await getProxyAddress('unknown-366')
 			factory = contractFactory
 			address = proxyAddress
@@ -49,5 +49,4 @@ describe('Functions', function () {
 			expect(limit).to.equal(ethers.parseEther('5000'))
 		})
 	})
-
 })

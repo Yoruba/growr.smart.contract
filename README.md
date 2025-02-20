@@ -1,5 +1,10 @@
 # Theta
 
+# deployment
+First deploy the year contract as a template
+Use the implementation address to deploy the year contract with the year factory
+Update script for the year factory is only needed for testing the Year template
+
 # Errors
 could not coalesce error | delete 366.json file and start again
 

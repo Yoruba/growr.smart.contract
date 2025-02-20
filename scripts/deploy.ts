@@ -1,12 +1,12 @@
-import { deploy } from './init';
-import { init } from './init';
+import { deploy } from './init'
+import { init } from './init'
 
 async function runDeployment(): Promise<void> {
- console.log('runDeployment');
- const { contractFactory, wallet } = await init();
- await deploy(contractFactory, wallet);
+	console.log('runDeployment')
+	const { contractFactory, wallet, implementationAddress } = await init()
+	await deploy(contractFactory, wallet, implementationAddress)
 }
 
-runDeployment();
+runDeployment()
 
-export { runDeployment };
+export { runDeployment }

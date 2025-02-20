@@ -25,23 +25,23 @@ contract YearFactory is Initializable, OwnableUpgradeable {
 		implementation = _implementation;
 	}
 
-	function deployYear(uint256 year) public onlyOwner {
-		// check if year is year like YYYY
-		require(year >= 2017 && year <= 2060, "Invalid year");
+	 function deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit) public onlyOwner {
+        require(year >= 2017 && year <= 2060, "Invalid year");
+        require(deployedYears[year] == address(0), "Year already deployed");
 
-		require(deployedYears[year] == address(0), "Year already deployed");
+        bytes memory data = abi.encodeWithSignature(
+            "initialize(address,uint256,uint256,uint256)",
+            owner(),
+            year,
+            cost,
+            withdrawalLimit
+        );
 
-		
+        ERC1967Proxy proxy = new ERC1967Proxy(implementation, data);
 
-		// Deploy a new proxy contract pointing to the implementation
-		bytes memory data = abi.encodeWithSignature("initialize(address)", owner()); // Initialize with the factory owner as the year contract owner.
-		// Proxy Pattern: The factory deploys proxy contracts. Each proxy points to the same Year implementation contract.
-		// This is how upgrades work: you deploy a new implementation, and then tell the proxies to point to it.
-		ERC1967Proxy proxy = new ERC1967Proxy(implementation, data);
-
-		deployedYears[year] = address(proxy);
-		emit YearDeployed(year, address(proxy));
-	}
+        deployedYears[year] = address(proxy);
+        emit YearDeployed(year, address(proxy));
+    }
 
 	// returns the contract address for a given year
 	// can be used to interact with the contract or upgrade it

@@ -19,6 +19,7 @@ contract Year is Initializable, OwnableUpgradeable {
 	event Trace(string functionCall, string message);
 
 	// Add an initializer function
+	// todo: beneficiary
 	function initialize(address initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit) public initializer {
 		__Ownable_init(initialOwner); // Initialize Ownable
 		year = _year;

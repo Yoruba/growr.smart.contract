@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import { getProxyAddress, upgrade } from '../scripts/upgrade'
-import { init } from '../scripts/init'
-import { Wallet, ethers, parseEther } from 'ethers'
+import { initYear } from '../scripts/year/init'
+import { Wallet } from 'ethers'
 import { Year } from '../typechain-types'
+import { getProxyAddress, upgrade } from '../scripts/year/upgrade'
 
 describe('Withdrawal', function () {
 	let contract: Year
@@ -13,7 +13,7 @@ describe('Withdrawal', function () {
 
 	beforeEach(async function () {
 		try {
-			const { contractFactory, wallet, provider } = await init()
+			const { contractFactory, wallet, provider } = await initYear()
 			const proxyAddress = await getProxyAddress('unknown-366')
 			factory = contractFactory
 			proxyContractAddress = proxyAddress
@@ -40,7 +40,6 @@ describe('Withdrawal', function () {
 				// get sender contribution
 				const contribution = await contract.getContribution(senderWallet.address)
 				console.log('Contribution:', contribution.toString())
-
 
 				// send tokens
 				const fundsInWei = await contract.getCost()
