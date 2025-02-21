@@ -13,7 +13,7 @@ contract Year is Initializable, OwnableUpgradeable {
 	uint256 public cost;
 	uint256 public withdrawalLimit;
 	mapping(address => uint256) public contributions; // keep track of contributions
-	
+
 	event FundsReceived(address indexed sender, uint256 amount, uint256 year);
 	event Withdrawal(address indexed sender, uint256 amount, address indexed recipient, uint256 year);
 	event Trace(string functionCall, string message);
@@ -66,7 +66,7 @@ contract Year is Initializable, OwnableUpgradeable {
 
 	function withdraw() public onlyOwner {
 		if (address(this).balance >= withdrawalLimit) {
- 			uint256 balance = address(this).balance; // Store to avoid repeated calls to balance
+			uint256 balance = address(this).balance; // Store to avoid repeated calls to balance
 			emit Withdrawal(msg.sender, balance, owner(), year);
 			payable(owner()).transfer(balance);
 		}
@@ -95,9 +95,8 @@ contract Year is Initializable, OwnableUpgradeable {
 		emit FundsReceived(msg.sender, msg.value, year);
 	}
 
-
 	// Function to reset contributions by address for testing only
-	function resetContribution(address contributorAddress) public onlyOwner  {
+	function resetContribution(address contributorAddress) public onlyOwner {
 		contributions[contributorAddress] = 0;
 	}
 }

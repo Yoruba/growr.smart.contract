@@ -1,0 +1,12 @@
+[
+  {
+    "type": "proxy",
+    "name": "factory",
+    "address": "0x0Bc66330c6e556B6f251AeA765D19f0Cd6F8E11b"
+  },
+  {
+    "type": "implementation",
+    "name": "template",
+    "address": "0x18DBeD5579F5651D6D6F48408153A9E8b313318b"
+  }
+]

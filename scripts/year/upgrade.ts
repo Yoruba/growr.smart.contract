@@ -1,13 +1,13 @@
 import { upgrades } from 'hardhat'
-import { initYear } from './init'
 import fs from 'fs'
 import { env } from 'process'
 import { runDeployment } from './deploy'
+import { init } from './init'
 
 // see .openzeppelin/<network>.json for the proxy address
 export async function upgrade(proxyAddress: string, contractFactory: any) {
 	try {
-		console.log('upgrading contract...')
+		console.log('upgrading year contract...')
 		// upgrade the contract with the owner wallet address
 		const contract = await upgrades.upgradeProxy(proxyAddress, contractFactory)
 
@@ -18,8 +18,8 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 		console.log(env.NODE_ENV)
 		if (process.env.NODE_ENV === 'test') return contract
 
-		console.log('proxy address   :', proxyAddress)
-		console.log('contract address:', contract.target)
+		console.log('proxy address year   :', proxyAddress)
+		console.log('contract update address year:', contract.target)
 
 		if (!contract) {
 			throw new Error('-------------- Contract is undefined --------------')
@@ -37,14 +37,20 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 }
 
 // get proxy address from the network json file
-export async function getProxyAddress(network: string) {
+export async function getProxyAddress(name: string) {
 	try {
-		const jsonFile = `.openzeppelin/${network}.json`
+		const jsonFile = `./addresses.json`
 		// console.log(`reading proxy address from ${jsonFile}`)
 		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
-		// first address is the proxy address
-		// others are implementation addresses
-		return metadata.proxies[0].address
+
+		// get where name is year with structure  { type: 'factory', name: 'year', address: contract.target }
+		const proxyAddress = metadata.find((item: any) => item.name === name).address
+
+		if (!proxyAddress) {
+			throw new Error(`-------------- Proxy address for ${name} is undefined --------------`)
+		}
+
+		return proxyAddress
 	} catch (err: any) {
 		console.error('getProxyAddress failed:', err.message)
 	}
@@ -53,8 +59,8 @@ export async function getProxyAddress(network: string) {
 // run the init function first and then upgrade
 export async function runUpgrade() {
 	try {
-		const { contractFactory } = await initYear()
-		const proxyAddress = await getProxyAddress('unknown-366')
+		const { contractFactory } = await init()
+		const proxyAddress = await getProxyAddress('year')
 		const response = await upgrade(proxyAddress, contractFactory)
 
 		console.log(JSON.stringify(response, null, 2))

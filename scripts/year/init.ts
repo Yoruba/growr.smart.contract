@@ -6,7 +6,7 @@ import fs from 'fs'
 export async function init() {
 	// Get the environment file path from an environment variable
 	try {
-		console.log('init...')
+		console.log('init year...')
 
 		const envFilePath = process.env.ENV_FILE_PATH || './.env.private'
 		dotenv.config({ path: envFilePath })
@@ -17,7 +17,7 @@ export async function init() {
 		const provider = new ethers.JsonRpcProvider(API_URL)
 		const wallet = new ethers.Wallet(PRIVATE_KEY || '', provider)
 
-		console.log(`deployer address: ${wallet.address}`)
+		//console.log(`deployer address: ${wallet.address}`)
 
 		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
 
@@ -26,14 +26,14 @@ export async function init() {
 
 		return { contractFactory, wallet, provider }
 	} catch (err: any) {
-		console.error('init failed:', err.message)
+		console.error('init year failed:', err.message)
 		throw err
 	}
 }
 
 export async function deploy(contractFactory: ethers.ContractFactory, wallet: ethers.Wallet) {
 	try {
-		console.log('deploying contract...')
+		console.log('deploying year contract...')
 		// Deploy the contract with the owner wallet address
 		const contract = await upgrades.deployProxy(
 			contractFactory,
@@ -44,10 +44,10 @@ export async function deploy(contractFactory: ethers.ContractFactory, wallet: et
 		// Wait for the deployment transaction to be mined
 		await contract.waitForDeployment()
 
-		console.log('contract address:', contract.target)
+		console.log('contract proxy (implementation) address year:', contract.target)
 
 		return contract
 	} catch (err: any) {
-		console.error('deploy failed:', err.message)
+		console.error('deploy year failed:', err.message)
 	}
 }

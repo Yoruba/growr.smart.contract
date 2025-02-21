@@ -14,34 +14,35 @@ contract YearFactory is Initializable, OwnableUpgradeable {
 	mapping(uint256 => address) public deployedYears; // Mapping of year to contract address
 
 	event YearDeployed(uint256 year, address contractAddress);
+	event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
 	constructor() {
 		_disableInitializers();
 	}
 
+	// implement is the template contract that will be used to deploy new Year contracts
+	// It must be an implementation and not a proxy.
 	function initialize(address initialOwner, address _implementation) public initializer {
 		__Ownable_init(initialOwner);
 		implementation = _implementation;
 	}
 
-	 function deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit) public onlyOwner {
-        require(year >= 2017 && year <= 2060, "Invalid year");
-        require(deployedYears[year] == address(0), "Year already deployed");
+	function deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit) public onlyOwner returns (address) { 
+		// fixme: require(year >= 2017 && year <= 2060, "Invalid year");
+		// fixme: require(deployedYears[year] == address(0), "Year already deployed");
+		emit YearParams(year, cost, withdrawalLimit);
 
-        bytes memory data = abi.encodeWithSignature(
-            "initialize(address,uint256,uint256,uint256)",
-            owner(),
-            year,
-            cost,
-            withdrawalLimit
-        );
+		// bytes memory data = abi.encodeWithSignature("initialize(address,uint256,uint256,uint256)", owner(), year, cost, withdrawalLimit);
 
-        ERC1967Proxy proxy = new ERC1967Proxy(implementation, data);
+		// ERC1967Proxy proxy = new ERC1967Proxy(implementation, data);
 
-        deployedYears[year] = address(proxy);
-        emit YearDeployed(year, address(proxy));
-    }
+		// deployedYears[year] = address(proxy);
+		// emit YearDeployed(year, address(proxy));
+
+// return address(proxy);
+return implementation;
+	}
 
 	// returns the contract address for a given year
 	// can be used to interact with the contract or upgrade it
@@ -54,5 +55,13 @@ contract YearFactory is Initializable, OwnableUpgradeable {
 	// This is how you upgrade the Year contract logic.
 	function setImplementation(address _implementation) public onlyOwner {
 		implementation = _implementation;
+	}
+
+	function getImplementation() public view returns (address) {
+		return implementation;
+	}
+
+	function getOwner() public view returns (address) {
+		return owner();
 	}
 }
