@@ -33,9 +33,9 @@ contract YearFactory is Initializable, OwnableUpgradeable {
 		// fixme: require(deployedYears[year] == address(0), "Year already deployed");
 		emit YearParams(year, cost, withdrawalLimit);
 
-		// bytes memory data = abi.encodeWithSignature("initialize(address,uint256,uint256,uint256)", owner(), year, cost, withdrawalLimit);
+		bytes memory data = abi.encodeWithSignature("initialize(address,uint256,uint256,uint256)", owner(), year, cost, withdrawalLimit);
 
-		// ERC1967Proxy proxy = new ERC1967Proxy(implementation, data);
+		ERC1967Proxy proxy = new ERC1967Proxy(implementation, data);
 
 		// deployedYears[year] = address(proxy);
 		// emit YearDeployed(year, address(proxy));

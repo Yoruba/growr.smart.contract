@@ -1,7 +1,8 @@
 import dotenv from 'dotenv'
-import { ethers } from 'ethers'
+import { JsonRpcProvider, ethers } from 'ethers'
 import { upgrades } from 'hardhat'
 import fs from 'fs'
+import { getImplementationAddress } from '@openzeppelin/upgrades-core'
 
 export async function init() {
 	// Get the environment file path from an environment variable
@@ -31,7 +32,7 @@ export async function init() {
 	}
 }
 
-export async function deploy(contractFactory: ethers.ContractFactory, wallet: ethers.Wallet) {
+export async function deployYear(contractFactory: ethers.ContractFactory, wallet: ethers.Wallet, provider: JsonRpcProvider) {
 	try {
 		console.log('deploying year contract...')
 		// Deploy the contract with the owner wallet address
@@ -44,7 +45,9 @@ export async function deploy(contractFactory: ethers.ContractFactory, wallet: et
 		// Wait for the deployment transaction to be mined
 		await contract.waitForDeployment()
 
-		console.log('contract proxy (implementation) address year:', contract.target)
+		console.log('contract proxy address year:', contract.target)
+
+		
 
 		return contract
 	} catch (err: any) {

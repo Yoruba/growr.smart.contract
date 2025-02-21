@@ -1,6 +1,6 @@
 import { Watcher } from './Watcher' // Adjust the path as necessary
 import dotenv from 'dotenv'
-import { getProxyAddress } from './scripts/upgrade' // Adjust the path as necessary
+import { getAddress } from './scripts/upgrade' // Adjust the path as necessary
 
 async function main() {
 	try {
@@ -9,7 +9,7 @@ async function main() {
 		dotenv.config({ path: envFilePath })
 
 		const { API_URL } = process.env
-		const address = await getProxyAddress('unknown-366')
+		const address = await getAddress('unknown-366')
 		await Watcher.init(API_URL || '', address, contractName)
 		await Watcher.historyFunds()
 		await Watcher.historyTransferredFunds()

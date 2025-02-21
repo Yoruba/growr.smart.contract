@@ -1,11 +1,12 @@
 import { ethers } from 'ethers'
-import { deploy } from './init'
-import { init } from './init'
+import { deployYear } from './init.year'
+import { init } from './init.year'
 
 async function runDeployment(): Promise<ethers.BaseContract | undefined> {
 	console.log('runDeployment for year contract...')
-	const { contractFactory, wallet } = await init()
-	return await deploy(contractFactory, wallet)
+	const { contractFactory, wallet, provider } = await init()
+
+	return await deployYear(contractFactory, wallet, provider)
 }
 
 runDeployment()

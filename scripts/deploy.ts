@@ -1,10 +1,10 @@
-import { deploy } from './init'
-import { init } from './init'
+import { deployFactory } from './init'
+import { int } from './init'
 
 async function runDeployment(): Promise<void> {
 	console.log('runDeployment')
-	const { contractFactory, wallet, implementationAddress } = await init()
-	await deploy(contractFactory, wallet, implementationAddress)
+	const { contractFactory, wallet, implementationAddress, proxyAddress } = await int()
+	await deployFactory(contractFactory, wallet, implementationAddress, proxyAddress)
 }
 
 runDeployment()

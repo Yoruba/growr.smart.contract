@@ -1,6 +1,6 @@
 import { expect } from 'chai'
-import { getProxyAddress, upgrade } from '../scripts/upgrade'
-import { init } from '../scripts/init'
+import { getAddress, upgrade } from '../scripts/upgrade'
+import { int } from '../scripts/init'
 import { Wallet, ethers, parseEther } from 'ethers'
 import { YearFactory, YearFactoryInterface } from '../typechain-types/contracts/YearFactory'
 import fs from 'fs-extra'
@@ -15,9 +15,9 @@ describe('Functions', function () {
 
 	before(async function () {
 		try {
-			const { contractFactory, wallet, provider } = await init()
-			const proxyAddress = await getProxyAddress('factory')
-			templateAddress = await getProxyAddress('template')
+			const { contractFactory, wallet, provider } = await int()
+			const proxyAddress = await getAddress('factory')
+			templateAddress = await getAddress('template')
 			factory = contractFactory
 			address = proxyAddress
 			senderWallet = wallet
@@ -57,7 +57,7 @@ describe('Functions', function () {
 
 	it('deployYearContract', async function () {
 		const nounce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
-		const yearContract = await contract.deployYear(2024, parseEther('1000'), parseEther('5000'), { nonce: nounce })
+		const yearContract = await contract.deployYear(2027, parseEther('1000'), parseEther('5000'), { nonce: nounce })
 		// expect(yearContract).to.be.a('string')
 
 		// Get all past events (useful for initial loading)
@@ -65,10 +65,10 @@ describe('Functions', function () {
 
 		// get last block
 		const block = await thetaProvider.getBlockNumber()
-		// console.log('Block:', block)
-		// go 5000 blocks back
+		console.log('Block:', block)
 
-		const events = await contract.queryFilter(filter, block - 10, 'latest') // From block 0 to latest
+		const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
+		console.log('events:', events.length)
 
 		//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
 		events.forEach((event) => {
@@ -76,6 +76,9 @@ describe('Functions', function () {
 				`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()}`
 			)
 		})
+
+		console.log('end', 1234)
+		// console.log('year contract:', yearContract)
 	})
 
 	// it('getYearContract', async function () {

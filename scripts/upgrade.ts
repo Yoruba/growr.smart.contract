@@ -1,5 +1,5 @@
 import { upgrades } from 'hardhat'
-import { init } from './init'
+import { int } from './init'
 import fs from 'fs'
 import { env } from 'process'
 import { runDeployment } from './deploy'
@@ -37,7 +37,7 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 }
 
 // get proxy address from the network json file
-export async function getProxyAddress(name: string) {
+export async function getAddress(name: string) {
 	try {
 		const jsonFile = `./addresses.json`
 		// console.log(`reading proxy address from ${jsonFile}`)
@@ -52,15 +52,15 @@ export async function getProxyAddress(name: string) {
 
 		return proxyAddress
 	} catch (err: any) {
-		console.error('getProxyAddress failed:', err.message)
+		console.error('getAddress failed:', err.message)
 	}
 }
 
 // run the init function first and then upgrade
 export async function runUpgrade() {
 	try {
-		const { contractFactory } = await init()
-		const proxyAddress = await getProxyAddress('factory')
+		const { contractFactory } = await int()
+		const proxyAddress = await getAddress('factory')
 		const response = await upgrade(proxyAddress, contractFactory)
 
 		console.log(JSON.stringify(response, null, 2))

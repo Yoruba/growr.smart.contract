@@ -1,8 +1,8 @@
 import { upgrades } from 'hardhat'
 import fs from 'fs'
 import { env } from 'process'
-import { runDeployment } from './deploy'
-import { init } from './init'
+import { runDeployment } from './deploy.year'
+import { init } from './init.year'
 
 // see .openzeppelin/<network>.json for the proxy address
 export async function upgrade(proxyAddress: string, contractFactory: any) {
@@ -37,7 +37,7 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 }
 
 // get proxy address from the network json file
-export async function getProxyAddress(name: string) {
+export async function getAddress(name: string) {
 	try {
 		const jsonFile = `./addresses.json`
 		// console.log(`reading proxy address from ${jsonFile}`)
@@ -52,7 +52,7 @@ export async function getProxyAddress(name: string) {
 
 		return proxyAddress
 	} catch (err: any) {
-		console.error('getProxyAddress failed:', err.message)
+		console.error('getAddress failed:', err.message)
 	}
 }
 
@@ -60,7 +60,7 @@ export async function getProxyAddress(name: string) {
 export async function runUpgrade() {
 	try {
 		const { contractFactory } = await init()
-		const proxyAddress = await getProxyAddress('year')
+		const proxyAddress = await getAddress('year')
 		const response = await upgrade(proxyAddress, contractFactory)
 
 		console.log(JSON.stringify(response, null, 2))

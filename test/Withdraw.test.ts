@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import { initYear } from '../scripts/year/init'
+import { initYear } from '../scripts/year/init.year'
 import { Wallet } from 'ethers'
 import { Year } from '../typechain-types'
-import { getProxyAddress, upgrade } from '../scripts/year/upgrade'
+import { getAddress, upgrade } from '../scripts/year/upgrade.year'
 
 describe('Withdrawal', function () {
 	let contract: Year
@@ -14,7 +14,7 @@ describe('Withdrawal', function () {
 	beforeEach(async function () {
 		try {
 			const { contractFactory, wallet, provider } = await initYear()
-			const proxyAddress = await getProxyAddress('unknown-366')
+			const proxyAddress = await getAddress('unknown-366')
 			factory = contractFactory
 			proxyContractAddress = proxyAddress
 			senderWallet = wallet

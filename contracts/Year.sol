@@ -5,7 +5,6 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 /// @custom:security-contact hi@ggrow.io
 contract Year is Initializable, OwnableUpgradeable {
