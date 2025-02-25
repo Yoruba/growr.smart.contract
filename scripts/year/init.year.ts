@@ -38,7 +38,8 @@ export async function deployYear(contractFactory: ethers.ContractFactory, wallet
 		// Deploy the contract with the owner wallet address
 		const contract = await upgrades.deployProxy(
 			contractFactory,
-			[wallet.address, 2024, ethers.parseEther('1000'), ethers.parseEther('5000')], // constructor arguments
+			// [wallet.address, 2024, ethers.parseEther('1000'), ethers.parseEther('5000')], // constructor arguments
+			[wallet.address], // constructor arguments
 			// function call
 			{ initializer: 'initialize', timeout: 60000 }
 		)

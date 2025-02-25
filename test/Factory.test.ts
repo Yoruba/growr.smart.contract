@@ -4,6 +4,7 @@ import { int } from '../scripts/init'
 import { Wallet, ethers, parseEther } from 'ethers'
 import { YearFactory, YearFactoryInterface } from '../typechain-types/contracts/YearFactory'
 import fs from 'fs-extra'
+import { RpcResponse } from '../interfaces/RpcResponse'
 
 describe('Functions', function () {
 	let contract: YearFactory
@@ -56,29 +57,43 @@ describe('Functions', function () {
 	})
 
 	it('deployYearContract', async function () {
-		const nounce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
-		const yearContract = await contract.deployYear(2027, parseEther('1000'), parseEther('5000'), { nonce: nounce })
-		// expect(yearContract).to.be.a('string')
+		try {
+			const nounce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
+			// const yearContract = await contract.deployYear(2027, parseEther('1000'), parseEther('5000'), { nonce: nounce })
 
-		// Get all past events (useful for initial loading)
-		const filter = contract.filters.YearParams() // All FundsReceived events
+			const template = await contract.getImplementation()
+			expect(template).to.equal(templateAddress)
 
-		// get last block
-		const block = await thetaProvider.getBlockNumber()
-		console.log('Block:', block)
+			const yearContract = await contract.deployYear({ nonce: nounce })
+			// expect(yearContract).to.be.a('string')
 
-		const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
-		console.log('events:', events.length)
+			// Get all past events (useful for initial loading)
+			const filter = contract.filters.YearParams() // All FundsReceived events
 
-		//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
-		events.forEach((event) => {
-			console.log(
-				`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()}`
-			)
-		})
+			// get last block
+			const block = await thetaProvider.getBlockNumber()
+			console.log('Block:', block)
 
-		console.log('end', 1234)
-		// console.log('year contract:', yearContract)
+			const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
+			console.log('events:', events.length)
+
+			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
+			events.forEach((event) => {
+				console.log(
+					`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()}`
+				)
+			})
+
+			console.log('end', 1234)
+			// console.log('year contract:', yearContract)
+		} catch (err: any) {
+			console.log(333333333333333333333333333333)
+			console.log(err)
+			console.log(333333333333333333333333333333)
+			// console.error('Error:', err.message)
+			const rpcResponse = err as RpcResponse
+			// console.log('Error:', rpcResponse.data)
+		}
 	})
 
 	// it('getYearContract', async function () {

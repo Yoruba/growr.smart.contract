@@ -1,3 +1,9 @@
+export interface RpcErrorResponse {
+	error: string
+	message: string
+	payload: Payload
+}
+
 export interface RpcResponse {
 	code: string
 	action: string
@@ -39,5 +45,3 @@ interface Transaction {
 	data: string
 	from: string
 }
-
-

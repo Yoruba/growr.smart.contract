@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+// Import Ownable from the OpenZeppelin Contracts library
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @custom:security-contact hi@ggrow.io
-contract Year is OwnableUpgradeable {
+contract Year is Initializable, OwnableUpgradeable {
 	uint256 public year;
 	uint256 public cost;
 	uint256 public withdrawalLimit;
@@ -14,23 +17,14 @@ contract Year is OwnableUpgradeable {
 	event Withdrawal(address indexed sender, uint256 amount, address indexed recipient, uint256 year);
 	event Trace(string functionCall, string message);
 
-	
 	// Add an initializer function
 	// todo: beneficiary
-	// function initialize(address initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit) public initializer {
-	// 	__Ownable_init(initialOwner); // Initialize Ownable
-	// 	year = _year;
-	// 	cost = _cost;
-	// 	withdrawalLimit = _withdrawalLimit;
-	// }
-
-	function initialize(address initialOwner) public initializer {
+	function initialize(address initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit) public initializer {
 		__Ownable_init(initialOwner); // Initialize Ownable
-		year = 2024;
-		cost = 1000 * 10**18;
-		withdrawalLimit = 10000 * 10**18;
+		year = _year;
+		cost = _cost;
+		withdrawalLimit = _withdrawalLimit;
 	}
-	
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
 	constructor() {
