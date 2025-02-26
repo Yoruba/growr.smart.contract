@@ -28,7 +28,7 @@ interface Payload {
 	jsonrpc: string
 }
 
-interface Param {
+export interface Param {
 	nonce: string
 	value: string
 	from: string
@@ -40,7 +40,7 @@ interface Error {
 	message: string
 }
 
-interface Transaction {
+export interface Transaction {
 	to: string
 	data: string
 	from: string

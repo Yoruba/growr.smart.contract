@@ -7,7 +7,7 @@ import { runDeployment } from './deploy'
 // see .openzeppelin/<network>.json for the proxy address
 export async function upgrade(proxyAddress: string, contractFactory: any) {
 	try {
-		console.log(`upgrading factory contract with address ${proxyAddress}...`)
+		console.log(`upgrading factory contract with address ${proxyAddress}`)
 		// upgrade the contract with the owner wallet address
 		const contract = await upgrades.upgradeProxy(proxyAddress, contractFactory)
 

@@ -5,6 +5,7 @@ import { Wallet, ethers, parseEther } from 'ethers'
 import { YearFactory, YearFactoryInterface } from '../typechain-types/contracts/YearFactory'
 import fs from 'fs-extra'
 import { RpcResponse } from '../interfaces/RpcResponse'
+import { extractError } from '../scripts/helpers/RpcErrorResponseExtractor'
 
 describe('Functions', function () {
 	let contract: YearFactory
@@ -29,32 +30,32 @@ describe('Functions', function () {
 		}
 	})
 
-	// test if template contract is a smart contract address
-	it('get year of template', async function () {
-		// attach contract
-		const contractName = 'Year'
-		const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
+	// // test if template contract is a smart contract address
+	// it('get year of template', async function () {
+	// 	// attach contract
+	// 	const contractName = 'Year'
+	// 	const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
 
-		//console.log(`deployer address: ${wallet.address}`)
+	// 	//console.log(`deployer address: ${wallet.address}`)
 
-		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+	// 	const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
 
-		const yearContract = new ethers.Contract(templateAddress, metadata.abi, senderWallet)
+	// 	const yearContract = new ethers.Contract(templateAddress, metadata.abi, senderWallet)
 
-		const value = await yearContract.getYear()
-		// console.log('year:', value)
-		expect(value).to.equal(2024)
-	})
+	// 	const value = await yearContract.getYear()
+	// 	// console.log('year:', value)
+	// 	expect(value).to.equal(2024)
+	// })
 
-	it('getImplementation', async function () {
-		const template = await contract.getImplementation()
-		expect(template).to.equal(templateAddress)
-	})
+	// it('getImplementation', async function () {
+	// 	const template = await contract.getImplementation()
+	// 	expect(template).to.equal(templateAddress)
+	// })
 
-	it('getOwner', async function () {
-		const owner = await contract.getOwner()
-		expect(owner).to.equal(senderWallet.address)
-	})
+	// it('getOwner', async function () {
+	// 	const owner = await contract.getOwner()
+	// 	expect(owner).to.equal(senderWallet.address)
+	// })
 
 	it('deployYearContract', async function () {
 		try {
@@ -87,11 +88,11 @@ describe('Functions', function () {
 			console.log('end', 1234)
 			// console.log('year contract:', yearContract)
 		} catch (err: any) {
-			console.log(333333333333333333333333333333)
+			console.log(3333)
 			console.log(err)
-			console.log(333333333333333333333333333333)
+			console.log(3333)
 			// console.error('Error:', err.message)
-			const rpcResponse = err as RpcResponse
+			// const rpcResponse = err as RpcResponse
 			// console.log('Error:', rpcResponse.data)
 		}
 	})

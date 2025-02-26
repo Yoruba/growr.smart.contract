@@ -30,17 +30,11 @@ Error: missing revert data (action="estimateGas", data=null, reason=null, transa
 }
 */
 
-import { RpcErrorResponse } from '../../interfaces/RpcResponse'
+import { RpcErrorResponse, Transaction } from '../../interfaces/RpcResponse'
 
 // extract the error message from the input as a JSON object:
-export const extractError = (input: string): RpcErrorResponse => {
-	const lines = input.split('\n')
-	const error = lines[0].split(':')
-	const message = lines[1].trim()
-	const payload = JSON.parse(lines[2].trim())
-	return {
-		error: error[1].trim(),
-		message,
-		payload,
-	}
+export const extractError = (input: string): Transaction => {
+	console.log(input)
+	const jsonPart = `{${input.toString().split('transaction: {')[1].split('}')[0].trim()}}`
+	return JSON.parse(jsonPart)
 }
