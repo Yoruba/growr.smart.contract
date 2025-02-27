@@ -8,7 +8,7 @@ import { getImplementationAddress } from '@openzeppelin/upgrades-core'
 export async function int() {
 	// Get the environment file path from an environment variable
 	try {
-		console.log('init factory...')
+		console.log('01 [FACTORY] init factory')
 
 		// deploy year contract first as a template
 		const yearTemplate = await runDeployment()
@@ -16,10 +16,8 @@ export async function int() {
 			throw new Error('year contract template deployment failed')
 		}
 
-		const proxyAddress = yearTemplate?.target.toString() || ''
-
 		// needed for year factory contract deployment and update via factory
-		console.log('proxy year:', proxyAddress)
+		const proxyAddress = yearTemplate?.target.toString() || ''
 
 		const envFilePath = process.env.ENV_FILE_PATH || './.env.private'
 		dotenv.config({ path: envFilePath })
@@ -38,7 +36,7 @@ export async function int() {
 		const contractFactory = new ethers.ContractFactory(metadata.abi, metadata.bytecode, wallet)
 
 		const implementationAddress = await getImplementationAddress(provider, proxyAddress)
-		console.log('Deployed implementation to:', implementationAddress)
+		// console.log('Deployed implementation to:', implementationAddress)
 
 		return { contractFactory, wallet, provider, implementationAddress, proxyAddress }
 	} catch (err: any) {
@@ -49,7 +47,7 @@ export async function int() {
 
 export async function deployFactory(contractFactory: ContractFactory, wallet: Wallet, proxyAddress: string, implementationAddress: string) {
 	try {
-		console.log('deploying factory contract...')
+		console.log(`02 [FACTORY] deploying factory contract with template address: ${implementationAddress}`)
 		// Deploy the contract with the owner wallet address
 		const contract = await upgrades.deployProxy(
 			contractFactory,
@@ -60,7 +58,7 @@ export async function deployFactory(contractFactory: ContractFactory, wallet: Wa
 		// Wait for the deployment transaction to be mined
 		await contract.waitForDeployment()
 
-		console.log('contract factory address:', contract.target)
+		console.log(`03 [FACTORY] contract factory address: ${contract.target}`)
 
 		// write to json file scripts folder in project addresses.json with { type: 'factory', name: 'year', address: contract.target }
 		// write to json file addresses.json with { type: 'implementation', name: 'year', address: implementationAddress }

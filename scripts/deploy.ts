@@ -1,12 +1,10 @@
 import { deployFactory } from './init'
 import { int } from './init'
 
-async function runDeployment(): Promise<void> {
-	console.log('runDeployment')
+export async function runDeployment(): Promise<void> {
+	console.log('00 [FACTORY] run deployment')
 	const { contractFactory, wallet, implementationAddress, proxyAddress } = await int()
-	await deployFactory(contractFactory, wallet, implementationAddress, proxyAddress)
+	await deployFactory(contractFactory, wallet, proxyAddress, implementationAddress)
 }
 
 runDeployment()
-
-export { runDeployment }

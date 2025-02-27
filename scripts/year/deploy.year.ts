@@ -3,12 +3,10 @@ import { deployYear } from './init.year'
 import { init } from './init.year'
 
 async function runDeployment(): Promise<ethers.BaseContract | undefined> {
-	console.log('runDeployment for year contract...')
+	console.log('01 [YEAR] run deployment for year contract')
 	const { contractFactory, wallet, provider } = await init()
 
 	return await deployYear(contractFactory, wallet, provider)
 }
-
-runDeployment()
 
 export { runDeployment }

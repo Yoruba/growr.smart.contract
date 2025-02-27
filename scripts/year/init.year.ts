@@ -7,7 +7,7 @@ import { getImplementationAddress } from '@openzeppelin/upgrades-core'
 export async function init() {
 	// Get the environment file path from an environment variable
 	try {
-		console.log('init year...')
+		console.log('02 [YEAR] init year')
 
 		const envFilePath = process.env.ENV_FILE_PATH || './.env.private'
 		dotenv.config({ path: envFilePath })
@@ -27,14 +27,14 @@ export async function init() {
 
 		return { contractFactory, wallet, provider }
 	} catch (err: any) {
-		console.error('init year failed:', err.message)
+		console.error('[YEAR] init year failed:', err.message)
 		throw err
 	}
 }
 
 export async function deployYear(contractFactory: ethers.ContractFactory, wallet: ethers.Wallet, provider: JsonRpcProvider) {
 	try {
-		console.log('deploying year contract...')
+		console.log('03 [YEAR] deploying year contract')
 		// Deploy the contract with the owner wallet address
 		const contract = await upgrades.deployProxy(
 			contractFactory,
@@ -43,18 +43,15 @@ export async function deployYear(contractFactory: ethers.ContractFactory, wallet
 			{ initializer: 'initialize', timeout: 60000 }
 		)
 
-		// deploy year contract without proxy
-		//const contract = await contractFactory.deploy()
-
 		// Wait for the deployment transaction to be mined
-		// await contract.waitForDeployment()
+		await contract.waitForDeployment()
 
-		// console.log(contract)
-
-		console.log('contract proxy address year:', contract.target)
+		console.log('04 [YEAR] contract proxy address year:', contract.target)
+		const implementationAddress = await getImplementationAddress(provider, contract.target.toString())
+		console.log('05 [YEAR] deployed implementation to :', implementationAddress)
 
 		return contract
 	} catch (err: any) {
-		console.error('deploy year failed:', err.message)
+		console.error('[YEAR] deploy year failed:', err.message)
 	}
 }

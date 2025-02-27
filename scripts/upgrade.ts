@@ -7,7 +7,7 @@ import { runDeployment } from './deploy'
 // see .openzeppelin/<network>.json for the proxy address
 export async function upgrade(proxyAddress: string, contractFactory: any) {
 	try {
-		console.log(`upgrading factory contract with address ${proxyAddress}`)
+		console.log(`03 [FACTORY] upgrading factory contract with address ${proxyAddress}`)
 		// upgrade the contract with the owner wallet address
 		const contract = await upgrades.upgradeProxy(proxyAddress, contractFactory)
 
@@ -18,8 +18,8 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 		console.log(env.NODE_ENV)
 		if (process.env.NODE_ENV === 'test') return contract
 
-		console.log('proxy address factory    :', proxyAddress)
-		console.log('contract address factory :', contract.target)
+		console.log('04 [FACTORY] proxy address factory    :', proxyAddress)
+		console.log('05 [FACTORY] contract address factory :', contract.target)
 
 		if (!contract) {
 			throw new Error('-------------- Contract is undefined --------------')
@@ -27,10 +27,10 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 
 		return contract
 	} catch (err: any) {
-		console.error('upgrade failed:', err.message)
+		console.error('[FACTORY] upgrade failed:', err.message)
 		// if error message contains proxy create new proxy
 		if (err.message.includes('proxy')) {
-			console.log('creating new contract...')
+			console.log('[FACTORY] creating new contract...')
 			await runDeployment()
 		}
 	}

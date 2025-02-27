@@ -19,7 +19,9 @@ describe('Functions', function () {
 		try {
 			const { contractFactory, wallet, provider } = await int()
 			const proxyAddress = await getAddress('factory')
+			console.log(`[TEST] proxy address factory: ${proxyAddress}`)
 			templateAddress = await getAddress('template')
+			console.log(`[TEST] template address: ${templateAddress}`)
 			factory = contractFactory
 			address = proxyAddress
 			senderWallet = wallet
@@ -62,10 +64,13 @@ describe('Functions', function () {
 			const nounce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
 			// const yearContract = await contract.deployYear(2027, parseEther('1000'), parseEther('5000'), { nonce: nounce })
 
+			console.log(`[TEST] factory address: ${contract.target}`)
+
 			const template = await contract.getImplementation()
 			expect(template).to.equal(templateAddress)
 
 			const yearContract = await contract.deployYear({ nonce: nounce })
+			console.log('[DEPLOYED] year contract:', yearContract)
 			// expect(yearContract).to.be.a('string')
 
 			// Get all past events (useful for initial loading)
