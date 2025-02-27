@@ -1,11 +1,9 @@
 import { expect } from 'chai'
 import { getAddress, upgrade } from '../scripts/upgrade'
 import { int } from '../scripts/init'
-import { Interface, Wallet, ethers, parseEther } from 'ethers'
-import { YearFactory, YearFactoryInterface } from '../typechain-types/contracts/YearFactory'
+import { Wallet, ethers, parseEther } from 'ethers'
+import { YearFactory } from '../typechain-types/contracts/YearFactory'
 import fs from 'fs-extra'
-import { RpcResponse } from '../interfaces/RpcResponse'
-import { extractError } from '../scripts/helpers/RpcErrorResponseExtractor'
 
 describe('Functions', function () {
 	let contract: YearFactory
@@ -32,32 +30,30 @@ describe('Functions', function () {
 		}
 	})
 
-	// // test if template contract is a smart contract address
-	// it('get year of template', async function () {
-	// 	// attach contract
-	// 	const contractName = 'Year'
-	// 	const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
+	// test if template contract is a smart contract address
+	it('get year of template', async function () {
+		// attach contract
+		const contractName = 'Year'
+		const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
 
-	// 	//console.log(`deployer address: ${wallet.address}`)
+		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
 
-	// 	const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+		const yearContract = new ethers.Contract(templateAddress, metadata.abi, senderWallet)
 
-	// 	const yearContract = new ethers.Contract(templateAddress, metadata.abi, senderWallet)
+		const value = await yearContract.getYear()
+		// console.log('year:', value)
+		expect(value).to.equal(2024)
+	})
 
-	// 	const value = await yearContract.getYear()
-	// 	// console.log('year:', value)
-	// 	expect(value).to.equal(2024)
-	// })
+	it('getImplementation', async function () {
+		const template = await contract.getImplementation()
+		expect(template).to.equal(templateAddress)
+	})
 
-	// it('getImplementation', async function () {
-	// 	const template = await contract.getImplementation()
-	// 	expect(template).to.equal(templateAddress)
-	// })
-
-	// it('getOwner', async function () {
-	// 	const owner = await contract.getOwner()
-	// 	expect(owner).to.equal(senderWallet.address)
-	// })
+	it('getOwner', async function () {
+		const owner = await contract.getOwner()
+		expect(owner).to.equal(senderWallet.address)
+	})
 
 	it('deployYearContract', async function () {
 		try {
@@ -70,49 +66,8 @@ describe('Functions', function () {
 
 			const yearContract = await contract.deployYear(2027, parseEther('1000'), parseEther('5000'), { nonce: nounce })
 			// const yearContract = await contract.deployYear({ nonce: nounce })
-			console.log('01 [DEPLOYED] year contract:', yearContract)
+			// console.log('01 [DEPLOYED] year contract:', yearContract)
 			// expect(yearContract).to.be.a('string')
-
-			// get data from the contract
-			const data = yearContract.data
-			// Define the ABI of the function that returns the data
-			const abi = [
-				{
-					name: 'deployYear',
-					type: 'function',
-					stateMutability: 'nonpayable',
-					inputs: [
-						{
-							name: 'year',
-							type: 'uint256',
-						},
-						{
-							name: 'cost',
-							type: 'uint256',
-						},
-						{
-							name: 'withdrawalLimit',
-							type: 'uint256',
-						},
-					],
-					outputs: [
-						{
-							name: '',
-							type: 'address',
-						},
-					],
-				},
-			]
-			// Create an Interface object
-			const iface = new Interface(abi)
-
-			// Decode the data
-			const decodedData = iface.decodeFunctionResult('deployYear', data)
-
-			// Extract the values
-			const [address] = decodedData
-
-			console.log('Address:', address)
 
 			// Get all past events (useful for initial loading)
 			const filter = contract.filters.YearParams() // All FundsReceived events
@@ -121,7 +76,7 @@ describe('Functions', function () {
 			const block = await thetaProvider.getBlockNumber()
 			console.log('Block:', block)
 
-			const events = await contract.queryFilter(filter, block - 20, 'latest') // From block 0 to latest
+			const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
 			console.log('events:', events.length)
 
 			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
@@ -132,7 +87,7 @@ describe('Functions', function () {
 			})
 
 			const createFilter = contract.filters.YearDeployed() // All FundsReceived events
-			const createEvents = await contract.queryFilter(createFilter, block - 20, 'latest') // From block 0 to latest
+			const createEvents = await contract.queryFilter(createFilter, block - 100, 'latest') // From block 0 to latest
 			console.log('events:', events.length)
 
 			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
@@ -141,12 +96,24 @@ describe('Functions', function () {
 				console.log(`Deployed Year: ${createEvents.args?.year.toString()} contractAddress: ${createEvents.args?.contractAddress.toString()} `)
 			})
 
-			console.log('end', 1234)
+			// get last entry of createEvents and get the contract address
+			const lastEvent = createEvents[createEvents.length - 1]
+			const contractAddress = lastEvent.args?.contractAddress.toString()
+			console.log('Contract Address:', contractAddress)
+
+			// attach contract by address
+			const contractName = 'Year'
+			const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
+			const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+			const newContract = new ethers.Contract(contractAddress, metadata.abi, thetaProvider)
+
+			const year = await newContract.getYear()
+			console.log('Year:', year)
+
+			console.log('----------end-----------')
 			// console.log('year contract:', yearContract)
 		} catch (err: any) {
-			console.log(3333)
 			console.log(err)
-			console.log(3333)
 			// console.error('Error:', err.message)
 			// const rpcResponse = err as RpcResponse
 			// console.log('Error:', rpcResponse.data)
