@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-// Import Ownable from the OpenZeppelin Contracts library
-import "hardhat/console.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 // @custom:security-contact hi@ggrow.io
@@ -15,7 +12,7 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	address public implementation; // Address of the Year contract implementation
 
 	mapping(uint256 => address) public deployedYears; // Mapping of year to contract address
-
+	uint256[] public deployedYearKeys; // store the years that have been deployed
 	event YearDeployed(uint256 year, address contractAddress);
 	event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
 
@@ -29,29 +26,21 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	// implement is the template contract that will be used to deploy new Year contracts
 	// It must be an implementation and not a proxy.
 	function initialize(address initialOwner, address _implementation) public initializer {
-		console.log("YearFactory initialized with owner:", initialOwner);
-		console.log("Implementation address set to:", _implementation);
 		__Ownable_init(initialOwner);
 		__UUPSUpgradeable_init();
 		implementation = _implementation;
 	}
 
 	function deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit) public onlyOwner returns (address) {
-		// function deployYear() public onlyOwner returns (address) {
-		console.log("Deploying new Year contract");
-		// fixme: require(year >= 2017 && year <= 2060, "Invalid year");
-		// fixme: require(deployedYears[year] == address(0), "Year already deployed");
+		require(year >= 2000 && year <= 2060, "Invalid year");
+		require(deployedYears[year] == address(0), "Year already deployed");
 		emit YearParams(year, cost, withdrawalLimit);
 
-		//  Year yearImplementation = new Year();
-
 		bytes memory data = abi.encodeWithSignature("initialize(address,uint256,uint256,uint256)", owner(), year, cost, withdrawalLimit);
-		// bytes memory data = abi.encodeWithSignature("initialize(address)", owner());
-
 		ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), data);
 
-		// deployedYears[year] = address(proxy);
-		// fixme: emit YearDeployed(year, address(proxy));
+		deployedYears[year] = address(proxy);
+		deployedYearKeys.push(year);
 		emit YearDeployed(year, address(proxy));
 		return address(proxy);
 	}
@@ -76,6 +65,8 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	function getOwner() public view returns (address) {
 		return owner();
 	}
-}
 
-// https://forum.openzeppelin.com/t/how-to-setup-a-factory-for-an-upgradeable-smart-contract-deployed-with-uups-proxy/34006
+	function getAllDeployedYears() public view returns (uint256[] memory) {
+		return deployedYearKeys;
+	}
+}

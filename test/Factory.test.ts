@@ -12,6 +12,7 @@ describe('Functions', function () {
 	let senderWallet: Wallet
 	let thetaProvider: any
 	let templateAddress: string
+	let proxyAddressYear: string
 
 	before(async function () {
 		try {
@@ -20,6 +21,8 @@ describe('Functions', function () {
 			console.log(`01 [TEST] proxy address factory: ${proxyAddress}`)
 			templateAddress = await getAddress('template')
 			console.log(`02 [TEST] template address: ${templateAddress}`)
+			proxyAddressYear = await getAddress('year')
+			console.log(`03 [TEST] proxy address year: ${proxyAddressYear}`)
 			factory = contractFactory
 			address = proxyAddress
 			senderWallet = wallet
@@ -37,11 +40,9 @@ describe('Functions', function () {
 		const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
 
 		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
-
-		const yearContract = new ethers.Contract(templateAddress, metadata.abi, senderWallet)
+		const yearContract = new ethers.Contract(proxyAddressYear, metadata.abi, thetaProvider)
 
 		const value = await yearContract.getYear()
-		// console.log('year:', value)
 		expect(value).to.equal(2024)
 	})
 
@@ -58,16 +59,23 @@ describe('Functions', function () {
 	it('deployYearContract', async function () {
 		try {
 			const nounce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
-
-			console.log(`03 [TEST] factory address: ${contract.target}`)
+			// console.log(`03 [TEST] factory address: ${contract.target}`)
 
 			const template = await contract.getImplementation()
 			expect(template).to.equal(templateAddress)
 
-			const yearContract = await contract.deployYear(2027, parseEther('1000'), parseEther('5000'), { nonce: nounce })
-			// const yearContract = await contract.deployYear({ nonce: nounce })
-			// console.log('01 [DEPLOYED] year contract:', yearContract)
-			// expect(yearContract).to.be.a('string')
+			const deployedYears = await contract.getAllDeployedYears()
+
+			console.log(
+				'Deployed Years:',
+				deployedYears.map((year) => year.toString())
+			) // Convert BigInts to strings
+
+			const lastDeployedYear = deployedYears[deployedYears.length - 1] || 2000
+			const newYear = Number(lastDeployedYear) + 1
+			console.log('Year:', newYear.toString())
+			const tx = await contract.deployYear(newYear, parseEther('1000'), parseEther('5000'), { nonce: nounce })
+			await tx.wait()
 
 			// Get all past events (useful for initial loading)
 			const filter = contract.filters.YearParams() // All FundsReceived events
@@ -110,19 +118,16 @@ describe('Functions', function () {
 			const year = await newContract.getYear()
 			console.log('Year:', year)
 
+			const deployedYearsAfter = await contract.getAllDeployedYears()
+
+			console.log(
+				'Deployed Years:',
+				deployedYearsAfter.map((year) => year.toString())
+			) // Convert BigInts to strings
+
 			console.log('----------end-----------')
-			// console.log('year contract:', yearContract)
 		} catch (err: any) {
-			console.log(err)
-			// console.error('Error:', err.message)
-			// const rpcResponse = err as RpcResponse
-			// console.log('Error:', rpcResponse.data)
+			console.error(err)
 		}
 	})
-
-	// it('getYearContract', async function () {
-	// 	const yearContract = await contract.getYearContract(2024)
-	// 	console.log('year contract:', yearContract)
-	// 	expect(yearContract).to.be.a('string')
-	// })
 })
