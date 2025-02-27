@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { getAddress, upgrade } from '../scripts/upgrade'
 import { int } from '../scripts/init'
-import { Wallet, ethers, parseEther } from 'ethers'
+import { Interface, Wallet, ethers, parseEther } from 'ethers'
 import { YearFactory, YearFactoryInterface } from '../typechain-types/contracts/YearFactory'
 import fs from 'fs-extra'
 import { RpcResponse } from '../interfaces/RpcResponse'
@@ -19,9 +19,9 @@ describe('Functions', function () {
 		try {
 			const { contractFactory, wallet, provider } = await int()
 			const proxyAddress = await getAddress('factory')
-			console.log(`[TEST] proxy address factory: ${proxyAddress}`)
+			console.log(`01 [TEST] proxy address factory: ${proxyAddress}`)
 			templateAddress = await getAddress('template')
-			console.log(`[TEST] template address: ${templateAddress}`)
+			console.log(`02 [TEST] template address: ${templateAddress}`)
 			factory = contractFactory
 			address = proxyAddress
 			senderWallet = wallet
@@ -62,16 +62,57 @@ describe('Functions', function () {
 	it('deployYearContract', async function () {
 		try {
 			const nounce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
-			// const yearContract = await contract.deployYear(2027, parseEther('1000'), parseEther('5000'), { nonce: nounce })
 
-			console.log(`[TEST] factory address: ${contract.target}`)
+			console.log(`03 [TEST] factory address: ${contract.target}`)
 
 			const template = await contract.getImplementation()
 			expect(template).to.equal(templateAddress)
 
-			const yearContract = await contract.deployYear({ nonce: nounce })
-			console.log('[DEPLOYED] year contract:', yearContract)
+			const yearContract = await contract.deployYear(2027, parseEther('1000'), parseEther('5000'), { nonce: nounce })
+			// const yearContract = await contract.deployYear({ nonce: nounce })
+			console.log('01 [DEPLOYED] year contract:', yearContract)
 			// expect(yearContract).to.be.a('string')
+
+			// get data from the contract
+			const data = yearContract.data
+			// Define the ABI of the function that returns the data
+			const abi = [
+				{
+					name: 'deployYear',
+					type: 'function',
+					stateMutability: 'nonpayable',
+					inputs: [
+						{
+							name: 'year',
+							type: 'uint256',
+						},
+						{
+							name: 'cost',
+							type: 'uint256',
+						},
+						{
+							name: 'withdrawalLimit',
+							type: 'uint256',
+						},
+					],
+					outputs: [
+						{
+							name: '',
+							type: 'address',
+						},
+					],
+				},
+			]
+			// Create an Interface object
+			const iface = new Interface(abi)
+
+			// Decode the data
+			const decodedData = iface.decodeFunctionResult('deployYear', data)
+
+			// Extract the values
+			const [address] = decodedData
+
+			console.log('Address:', address)
 
 			// Get all past events (useful for initial loading)
 			const filter = contract.filters.YearParams() // All FundsReceived events
@@ -80,7 +121,7 @@ describe('Functions', function () {
 			const block = await thetaProvider.getBlockNumber()
 			console.log('Block:', block)
 
-			const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
+			const events = await contract.queryFilter(filter, block - 20, 'latest') // From block 0 to latest
 			console.log('events:', events.length)
 
 			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
@@ -88,6 +129,16 @@ describe('Functions', function () {
 				console.log(
 					`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()}`
 				)
+			})
+
+			const createFilter = contract.filters.YearDeployed() // All FundsReceived events
+			const createEvents = await contract.queryFilter(createFilter, block - 20, 'latest') // From block 0 to latest
+			console.log('events:', events.length)
+
+			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
+			createEvents.forEach((createEvents: any) => {
+				// console.log(createEvents)
+				console.log(`Deployed Year: ${createEvents.args?.year.toString()} contractAddress: ${createEvents.args?.contractAddress.toString()} `)
 			})
 
 			console.log('end', 1234)
