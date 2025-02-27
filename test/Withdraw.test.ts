@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import { initYear } from '../scripts/year/init.year'
+import { init } from '../scripts/year/init.year'
 import { Wallet } from 'ethers'
 import { Year } from '../typechain-types'
-import { getAddress, upgrade } from '../scripts/year/upgrade.year'
+import { getAddress, getProxyAddress, upgrade } from '../scripts/year/upgrade.year'
 
 describe('Withdrawal', function () {
 	let contract: Year
@@ -13,8 +13,8 @@ describe('Withdrawal', function () {
 
 	beforeEach(async function () {
 		try {
-			const { contractFactory, wallet, provider } = await initYear()
-			const proxyAddress = await getAddress('unknown-366')
+			const { contractFactory, wallet, provider } = await init()
+			const proxyAddress = await getProxyAddress('unknown-366')
 			factory = contractFactory
 			proxyContractAddress = proxyAddress
 			senderWallet = wallet
@@ -77,7 +77,7 @@ describe('Withdrawal', function () {
 			const events = await contract.queryFilter(filter, block - 10, 'latest') // From block 0 to latest
 
 			// event FundsReceived(address indexed sender, uint256 amount, uint256 year);
-			events.forEach((event) => {
+			events.forEach((event: any) => {
 				console.log('Funder:', event.args.sender)
 				console.log('Amount:', event.args.amount.toString())
 				console.log('Recipient:', event.args.recipient.toString())

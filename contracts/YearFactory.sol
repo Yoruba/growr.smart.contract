@@ -31,12 +31,12 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 		implementation = _implementation;
 	}
 
-	function deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit) public onlyOwner returns (address) {
+	function deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary) public onlyOwner returns (address) {
 		require(year >= 2000 && year <= 2060, "Invalid year");
 		require(deployedYears[year] == address(0), "Year already deployed");
 		emit YearParams(year, cost, withdrawalLimit);
 
-		bytes memory data = abi.encodeWithSignature("initialize(address,uint256,uint256,uint256)", owner(), year, cost, withdrawalLimit);
+		bytes memory data = abi.encodeWithSignature("initialize(address,uint256,uint256,uint256, address)", owner(), year, cost, withdrawalLimit, beneficiary);
 		ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), data);
 
 		deployedYears[year] = address(proxy);

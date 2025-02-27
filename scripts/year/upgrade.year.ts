@@ -56,6 +56,17 @@ export async function getAddress(name: string) {
 	}
 }
 
+export async function getProxyAddress(network: string) {
+	try {
+		const jsonFile = `.openzeppelin/${network}.json`
+		// console.log(`reading proxy address from ${jsonFile}`)
+		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+		return metadata.proxies[0].address
+	} catch (err: any) {
+		console.error('getProxyAddress failed:', err.message)
+	}
+}
+
 // run the init function first and then upgrade
 export async function runUpgrade() {
 	try {

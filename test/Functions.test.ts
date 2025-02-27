@@ -1,6 +1,6 @@
 import { expect } from 'chai'
-import { getAddress, upgrade } from '../scripts/year/upgrade.year'
-import { initYear } from '../scripts/year/init.year'
+import { getAddress, getProxyAddress, upgrade } from '../scripts/year/upgrade.year'
+import { init } from '../scripts/year/init.year'
 import { Year } from '../typechain-types'
 import { ethers, parseEther } from 'ethers'
 
@@ -11,8 +11,8 @@ describe('Functions', function () {
 
 	before(async function () {
 		try {
-			const { contractFactory } = await initYear()
-			const proxyAddress = await getAddress('unknown-366')
+			const { contractFactory } = await init()
+			const proxyAddress = await getProxyAddress('unknown-366')
 			factory = contractFactory
 			address = proxyAddress
 			contract = await upgrade(proxyAddress, contractFactory)

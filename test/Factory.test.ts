@@ -74,7 +74,13 @@ describe('Functions', function () {
 			const lastDeployedYear = deployedYears[deployedYears.length - 1] || 2000
 			const newYear = Number(lastDeployedYear) + 1
 			console.log('Year:', newYear.toString())
-			const tx = await contract.deployYear(newYear, parseEther('1000'), parseEther('5000'), { nonce: nounce })
+
+			const checksumAddress = ethers.getAddress('0xe873f6a0e5c72ad7030bb4e0d3b3005c8c087df4')
+			console.log('Checksum Address:', checksumAddress)
+
+			const tx = await contract.deployYear(newYear, parseEther('1000'), parseEther('5000'), checksumAddress, {
+				nonce: nounce,
+			})
 			await tx.wait()
 
 			// Get all past events (useful for initial loading)
@@ -117,6 +123,10 @@ describe('Functions', function () {
 
 			const year = await newContract.getYear()
 			console.log('Year:', year)
+
+			const beneficiary = await newContract.getBeneficiary()
+			console.log('Beneficiary:', beneficiary)
+			expect(beneficiary).to.equal(checksumAddress)
 
 			const deployedYearsAfter = await contract.getAllDeployedYears()
 
