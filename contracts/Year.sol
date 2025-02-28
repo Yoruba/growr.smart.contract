@@ -78,17 +78,17 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
 	// --- functions ---
 
-	function withdraw() public onlyOwner returns (uint256) {
+	function withdraw() public onlyOwner {
 		uint256 balance = address(this).balance; // Store to avoid repeated calls to balance
 		if (balance >= withdrawalLimit) {
 			emit Withdrawal(msg.sender, balance, beneficiary, year);
 			payable(beneficiary).transfer(balance);
 		}
-		return balance;
 	}
 
 	function drain() public onlyOwner {
-		   uint256 balance = address(this).balance;
+		uint256 balance = address(this).balance;
+		emit Withdrawal(msg.sender, balance, beneficiary, year);
 		payable(beneficiary).transfer(balance);
 	}
 

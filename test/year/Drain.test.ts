@@ -32,26 +32,26 @@ describe('Drain', function () {
 		it('should drain all funds', async function () {
 			// get balance of smart contract
 			const balanceContract = await contract.getBalance()
+			let additional = 0n
 			console.log('Balance contract:', balanceContract.toString())
 
 			const initialBeneficiary = await thetaProvider.getBalance(beneficiary)
 			console.log('Balance beneficiary:', initialBeneficiary.toString())
 
 			// ----------- contribute to contract can only be once------------
-			if (balanceContract === 0n) {
+			if (balanceContract < 1n) {
 				// get sender balance
 				const senderBalance = await thetaProvider.getBalance(senderWallet.address)
 				console.log('Sender balance:', senderBalance.toString())
 
 				// send tokens
 				// get cost
-				const cost = await contract.getCost()
-				const fundsInWei = cost
-				console.log(`Sender wallet has no funds. Send ${fundsInWei.toString()} to contract`)
+				additional = await contract.getCost()
+				console.log(`Sender wallet has no funds. Send ${additional.toString()} to contract`)
 				const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
 				let transaction = await senderWallet.sendTransaction({
 					to: proxyContractAddress,
-					value: fundsInWei,
+					value: additional,
 					nonce,
 				})
 
@@ -76,14 +76,14 @@ describe('Drain', function () {
 			const finalBalanceBeneficiary = await thetaProvider.getBalance(beneficiary)
 
 			expect(contractBalance).to.equal(0)
-			expect(finalBalanceBeneficiary).to.equal(initialBeneficiary + balanceContract)
+			expect(finalBalanceBeneficiary).to.equal(initialBeneficiary + balanceContract + additional)
 
 			// Get all past events (useful for initial loading)
 			const filter = contract.filters.Withdrawal()
 
 			// get last block
 			const block = await thetaProvider.getBlockNumber()
-			const events = await contract.queryFilter(filter, block - 10, 'latest') // From block 0 to latest
+			const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
 
 			// event FundsReceived(address indexed sender, uint256 amount, uint256 year);
 			events.forEach((event: any) => {
