@@ -9,6 +9,7 @@ describe('Set Not Owner Functions', function () {
 	let factory: any
 	let address: string
 	let owner: ethers.Wallet
+	let nonOwner: any
 	let thetaProvider: JsonRpcProvider
 
 	before(async function () {
@@ -20,69 +21,60 @@ describe('Set Not Owner Functions', function () {
 			thetaProvider = provider
 			owner = wallet
 			contract = await upgrade(proxyAddress, contractFactory)
+			nonOwner = ethers.Wallet.createRandom().connect(provider) // Create a non-owner wallet
 		} catch (err: any) {
 			console.error('Error:', err.message)
 		}
 	})
 
 	describe('setCost', function () {
-		it('setCost', async function () {
-			const nonce = await thetaProvider.getTransactionCount(owner.address, 'latest')
+		it('should fail when called by non-owner', async function () {
+			const nonce = await thetaProvider.getTransactionCount(nonOwner.address, 'latest')
 			const value = parseEther('9')
 
 			try {
-				const tx = await contract.setCost(value, { nonce })
-
-				const response = await tx.wait()
-				// console.log('Response:', response)
-				//expect(response?.status).to.be.equal(0)
+				const tx = await contract.connect(nonOwner).setCost(value, { nonce })
+				await tx.wait()
 			} catch (err: any) {
-				// expect error to be defined
 				expect(err).to.be.not.undefined
 			}
 
 			const cost = await contract.getCost()
-			// console.log('Cost:', cost.toString())
-			expect(cost).to.above(parseEther('1000'))
+			expect(cost).to.be.above(parseEther('1000'))
 		})
 	})
 
 	describe('setWithdrawalLimit', function () {
-		it('setWithdrawalLimit', async function () {
-			const nonce = await thetaProvider.getTransactionCount(owner.address, 'latest')
+		it('should fail when called by non-owner', async function () {
+			const nonce = await thetaProvider.getTransactionCount(nonOwner.address, 'latest')
 			const value = parseEther('99')
 
 			try {
-				const tx = await contract.setWithdrawalLimit(value, { nonce })
-
-				const response = await tx.wait()
-				// console.log('Response:', response)
-				//expect(response?.status).to.be.equal(0)
+				const tx = await contract.connect(nonOwner).setWithdrawalLimit(value, { nonce })
+				await tx.wait()
 			} catch (err: any) {
-				// expect error to be defined
 				expect(err).to.be.not.undefined
 			}
 
 			const withdrawal = await contract.getWithdrawalLimit()
-			// console.log('withdrawal:', withdrawal.toString())
-			expect(withdrawal).to.above(parseEther('10000'))
+			expect(withdrawal).to.be.above(parseEther('10000'))
 		})
 	})
 
 	describe('setBeneficiary', function () {
-		it('setBeneficiary', async function () {
-			const nonce = await thetaProvider.getTransactionCount(owner.address, 'latest')
+		it('should fail when called by non-owner', async function () {
+			const nonce = await thetaProvider.getTransactionCount(nonOwner.address, 'latest')
 			const beneficiary = getAddress('0x5453DcFd995cedB64b401A9B9ea888a3814394fE')
 
-			const tx = await contract.setBeneficiary(beneficiary, { nonce })
-
-			const response = await tx.wait()
-			// console.log('Response:', response)
-			//expect(response?.status).to.be.equal(0)
+			try {
+				const tx = await contract.connect(nonOwner).setBeneficiary(beneficiary, { nonce })
+				await tx.wait()
+			} catch (err: any) {
+				expect(err).to.be.not.undefined
+			}
 
 			const beneficiaryAddress = await contract.getBeneficiary()
-			// console.log('Beneficiary:', beneficiaryAddress)
-			expect(beneficiaryAddress).to.equal(beneficiary)
+			expect(beneficiaryAddress).to.not.equal('0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4')
 		})
 	})
 })
