@@ -11,8 +11,13 @@ import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	address public implementation; // Address of the Year contract implementation
 
+	struct YearInfo {
+		uint256 year;
+		address contractAddress;
+	}
+
+	YearInfo[] public deployedYearInfos; // Array to store years with their addresses
 	mapping(uint256 => address) public deployedYears; // Mapping of year to contract address
-	uint256[] public deployedYearKeys; // store the years that have been deployed
 	event YearDeployed(uint256 year, address contractAddress);
 	event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
 
@@ -31,31 +36,12 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 		implementation = _implementation;
 	}
 
-	function deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary) public onlyOwner returns (address) {
-		require(year >= 2000 && year <= 2060, "Invalid year");
-		require(deployedYears[year] == address(0), "Year already deployed");
-		emit YearParams(year, cost, withdrawalLimit);
-
-		bytes memory data = abi.encodeWithSignature("initialize(address,uint256,uint256,uint256, address)", owner(), year, cost, withdrawalLimit, beneficiary);
-		ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), data);
-
-		deployedYears[year] = address(proxy);
-		deployedYearKeys.push(year);
-		emit YearDeployed(year, address(proxy));
-		return address(proxy);
-	}
+	// --- getters ---
 
 	// returns the contract address for a given year
 	// can be used to interact with the contract or upgrade it
 	function getYearContract(uint256 year) public view returns (address) {
 		return deployedYears[year];
-	}
-
-	// Optional: Function to update the implementation contract (important for upgrades)
-	// Allows the owner of the factory to update the implementation contract.
-	// This is how you upgrade the Year contract logic.
-	function setImplementation(address _implementation) public onlyOwner {
-		implementation = _implementation;
 	}
 
 	function getImplementation() public view returns (address) {
@@ -66,7 +52,30 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 		return owner();
 	}
 
-	function getAllDeployedYears() public view returns (uint256[] memory) {
-		return deployedYearKeys;
+	function getAllDeployedYears() public view returns (YearInfo[] memory) {
+		return deployedYearInfos;
+	}
+
+	// --- setters ---
+
+	// Optional: Function to update the implementation contract (important for upgrades)
+	// Allows the owner of the factory to update the implementation contract.
+	// This is how you upgrade the Year contract logic.
+	function setImplementation(address _implementation) public onlyOwner {
+		implementation = _implementation;
+	}
+
+	function deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary) public onlyOwner returns (address) {
+		require(year >= 2000 && year <= 2060, "Invalid year");
+		require(deployedYears[year] == address(0), "Year already deployed");
+		emit YearParams(year, cost, withdrawalLimit);
+
+		bytes memory data = abi.encodeWithSignature("initialize(address, uint256, uint256, uint256, address)", owner(), year, cost, withdrawalLimit, beneficiary);
+		ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), data);
+
+		deployedYears[year] = address(proxy);
+		deployedYearInfos.push(YearInfo({year: year, contractAddress: address(proxy)}));
+		emit YearDeployed(year, address(proxy));
+		return address(proxy);
 	}
 }

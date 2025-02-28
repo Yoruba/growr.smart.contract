@@ -1,9 +1,9 @@
 import { expect } from 'chai'
-import { getAddress, upgrade } from '../scripts/upgrade'
-import { int } from '../scripts/init'
 import { Wallet, ethers, parseEther } from 'ethers'
-import { YearFactory } from '../typechain-types/contracts/YearFactory'
 import fs from 'fs-extra'
+import { YearFactory } from '../../typechain-types'
+import { int } from '../../scripts/init'
+import { getAddress, upgrade } from '../../scripts/upgrade'
 
 describe('Functions', function () {
 	let contract: YearFactory
@@ -64,14 +64,18 @@ describe('Functions', function () {
 			const template = await contract.getImplementation()
 			expect(template).to.equal(templateAddress)
 
-			const deployedYears = await contract.getAllDeployedYears()
+			// Call the getAllYearInfos function
+			const yearInfos: [bigint, string][] = await contract.getAllDeployedYears()
 
-			console.log(
-				'Deployed Years:',
-				deployedYears.map((year) => year.toString())
-			) // Convert BigInts to strings
+			// Process the returned array
+			const processedYearInfos = yearInfos.map((yearInfo) => ({
+				year: Number(yearInfo[0]),
+				contractAddress: yearInfo[1],
+			}))
 
-			const lastDeployedYear = deployedYears[deployedYears.length - 1] || 2000
+			console.log(`processedYearInfos: ${processedYearInfos}`)
+
+			const lastDeployedYear = processedYearInfos[processedYearInfos.length - 1] || 2000
 			const newYear = Number(lastDeployedYear) + 1
 			console.log('Year:', newYear.toString())
 
@@ -94,7 +98,7 @@ describe('Functions', function () {
 			console.log('events:', events.length)
 
 			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
-			events.forEach((event) => {
+			events.forEach((event: any) => {
 				console.log(
 					`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()}`
 				)
@@ -129,11 +133,11 @@ describe('Functions', function () {
 			expect(beneficiary).to.equal(checksumAddress)
 
 			const deployedYearsAfter = await contract.getAllDeployedYears()
+			console.log(deployedYearsAfter[0])
 
-			console.log(
-				'Deployed Years:',
-				deployedYearsAfter.map((year) => year.toString())
-			) // Convert BigInts to strings
+			deployedYearsAfter[0].forEach((yearInfo) => {
+				console.log(yearInfo)
+			})
 
 			console.log('----------end-----------')
 		} catch (err: any) {
