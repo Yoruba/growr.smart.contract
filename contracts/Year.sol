@@ -23,33 +23,34 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	}
 
 	// Add an initializer function
-	function initialize(address initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary) public initializer {
-		__Ownable_init(initialOwner); // Initialize Ownable
+	function initialize(address _initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary) public initializer {
+		__Ownable_init(_initialOwner); // Initialize Ownable
 		__UUPSUpgradeable_init();
 		year = _year;
-		cost = _cost == 0 ? 1000 : _cost; 
-		withdrawalLimit = _withdrawalLimit == 0 ? 10000 : _withdrawalLimit; 
-		// 										   0xe873f6a0e5c72ad7030bb4e0d3b3005c8c087df4
-		beneficiary = _beneficiary == address(0) ? 0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4 : _beneficiary; 
+		cost = _cost == 0 ? 1000 ether : _cost;
+		withdrawalLimit = _withdrawalLimit == 0 ? 10000 ether : _withdrawalLimit;
+		beneficiary = _beneficiary == address(0) ? 0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4 : _beneficiary;
 	}
 
 	function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-	function setYear(uint256 _year) public onlyOwner {
-		year = _year;
-	}
+	// --- setters ---
 
 	function setCost(uint256 _cost) public onlyOwner {
+		require(_cost >= 10 ether, "Cost must be greater than 10 Tfuel.");
 		cost = _cost;
 	}
 
 	function setWithdrawalLimit(uint256 _withdrawalLimit) public onlyOwner {
+		require(_withdrawalLimit >= 100 ether, "Withdrawal limit must be greater than 100 Tfuel.");
 		withdrawalLimit = _withdrawalLimit;
 	}
 
 	function setBeneficiary(address _beneficiary) public onlyOwner {
 		beneficiary = _beneficiary;
 	}
+
+	// --- getters ---
 
 	function getBalance() public view returns (uint256) {
 		return address(this).balance;
@@ -67,17 +68,28 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 		return withdrawalLimit;
 	}
 
-	function getContribution(address contributorAddress) public view returns (uint256) {
-		return contributions[contributorAddress];
+	function getContribution(address _contributorAddress) public view returns (uint256) {
+		return contributions[_contributorAddress];
 	}
 
 	function getBeneficiary() public view returns (address) {
 		return beneficiary;
 	}
 
+	// --- functions ---
+
 	function withdraw() public onlyOwner {
-		if (address(this).balance >= withdrawalLimit) {
-			uint256 balance = address(this).balance; // Store to avoid repeated calls to balance
+		uint256 balance = address(this).balance; // Store to avoid repeated calls to balance
+		if (balance >= withdrawalLimit) {
+			emit Withdrawal(msg.sender, balance, beneficiary, year);
+			payable(beneficiary).transfer(balance);
+		}
+	}
+
+	// create a function to paydirectly to the beneficiary if there is enough balance to pay the cast
+	function payDirectly() public onlyOwner {
+		uint256 balance = address(this).balance; // Store to avoid repeated calls to balance
+		if (balance >= 1 ether) {
 			emit Withdrawal(msg.sender, balance, beneficiary, year);
 			payable(beneficiary).transfer(balance);
 		}
@@ -107,7 +119,7 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	}
 
 	// Function to reset contributions by address for testing only
-	function resetContribution(address contributorAddress) public onlyOwner {
-		contributions[contributorAddress] = 0;
+	function resetContribution(address _contributorAddress) public onlyOwner {
+		contributions[_contributorAddress] = 0;
 	}
 }

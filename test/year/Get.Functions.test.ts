@@ -1,20 +1,22 @@
 import { expect } from 'chai'
-import { getAddress, getProxyAddress, upgrade } from '../scripts/year/upgrade.year'
-import { init } from '../scripts/year/init.year'
-import { Year } from '../typechain-types'
-import { ethers, parseEther } from 'ethers'
+import { getProxyAddress, upgrade } from '../../scripts/year/upgrade.year'
+import { init } from '../../scripts/year/init.year'
+import { Year } from '../../typechain-types'
+import { ethers } from 'ethers'
 
-describe('Functions', function () {
+describe('Get Functions', function () {
 	let contract: Year
 	let factory: any
 	let address: string
+	let owner: ethers.Wallet
 
 	before(async function () {
 		try {
-			const { contractFactory } = await init()
+			const { contractFactory, wallet } = await init()
 			const proxyAddress = await getProxyAddress('unknown-366')
 			factory = contractFactory
 			address = proxyAddress
+			owner = wallet
 			contract = await upgrade(proxyAddress, contractFactory)
 		} catch (err: any) {
 			console.error('Error:', err.message)
@@ -42,11 +44,24 @@ describe('Functions', function () {
 		})
 	})
 
-	// get withdrawal limit
 	describe('getWithdrawalLimit', function () {
 		it('should return the withdrawal limit', async function () {
 			const limit = await contract.getWithdrawalLimit()
 			expect(limit).to.equal(ethers.parseEther('5000'))
+		})
+	})
+
+	describe('getContribution', function () {
+		it('should return the contribution', async function () {
+			const contribution = await contract.getContribution(owner.address)
+			expect(contribution).to.equal(ethers.parseEther('0'))
+		})
+	})
+
+	describe('getBeneficiary', function () {
+		it('should return the beneficiary', async function () {
+			const beneficiary = await contract.getBeneficiary()
+			expect(beneficiary).to.equal('0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4')
 		})
 	})
 })
