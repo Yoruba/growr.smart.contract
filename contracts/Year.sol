@@ -78,7 +78,7 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
 	// --- functions ---
 
-	function withdraw() public onlyOwner  returns (uint256) {
+	function withdraw() public onlyOwner returns (uint256) {
 		uint256 balance = address(this).balance; // Store to avoid repeated calls to balance
 		if (balance >= withdrawalLimit) {
 			emit Withdrawal(msg.sender, balance, beneficiary, year);
@@ -87,15 +87,22 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 		return balance;
 	}
 
-// fixme: add only owner
-	function drain(address payable recipient, uint256 amount) public {
-        recipient.transfer(amount);
-    }
+	function drain() public onlyOwner {
+		   uint256 balance = address(this).balance;
+		payable(beneficiary).transfer(balance);
+	}
 
 	// --- receive functions ---
 
 	// This function is triggered when a contract receives plain tfuel (without data). msg.data must be empty
 	receive() external payable {
+		// if sender is owner, then allow to deposit any amount and do track the contribution
+		if (msg.sender == owner()) {
+			contributions[msg.sender] += msg.value;
+			emit FundsReceived(msg.sender, msg.value, year);
+			return;
+		}
+
 		// validate the amount received
 		if (msg.value != cost) revert("Amount is not correct.");
 

@@ -3,6 +3,7 @@ import { init } from '../../scripts/year/init.year'
 import { Wallet, parseEther } from 'ethers'
 import { Year } from '../../typechain-types'
 import { getProxyAddress, upgrade } from '../../scripts/year/upgrade.year'
+import { bigint } from 'hardhat/internal/core/params/argumentTypes'
 
 describe('Drain', function () {
 	let contract: Year
@@ -36,10 +37,17 @@ describe('Drain', function () {
 			const initialBeneficiary = await thetaProvider.getBalance(beneficiary)
 			console.log('Balance beneficiary:', initialBeneficiary.toString())
 
-			if (balanceContract <= parseEther('1')) {
+			// ----------- contribute to contract can only be once------------
+			if (balanceContract === 0n) {
+				// get sender balance
+				const senderBalance = await thetaProvider.getBalance(senderWallet.address)
+				console.log('Sender balance:', senderBalance.toString())
+
 				// send tokens
-				const fundsInWei = await contract.getCost()
-				console.log(`Sender wallet has no funds. Send ${fundsInWei} to contract`)
+				// get cost
+				const cost = await contract.getCost()
+				const fundsInWei = cost
+				console.log(`Sender wallet has no funds. Send ${fundsInWei.toString()} to contract`)
 				const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
 				let transaction = await senderWallet.sendTransaction({
 					to: proxyContractAddress,
@@ -49,12 +57,15 @@ describe('Drain', function () {
 
 				let response = await transaction.wait()
 				expect(response?.status).to.be.equal(1)
+
+				const contractBalance = await contract.getBalance()
+				console.log('Contract balance:', contractBalance.toString())
 			}
 
 			// owner is the sender not the smart contract
 			const nonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
 			console.log('Nonce:', nonce)
-			let transaction = await contract.drain(beneficiary, parseEther('1'), { nonce })
+			let transaction = await contract.drain({ nonce })
 
 			let response = await transaction.wait()
 			// console.log('Response:', response)
@@ -65,7 +76,7 @@ describe('Drain', function () {
 			const finalBalanceBeneficiary = await thetaProvider.getBalance(beneficiary)
 
 			expect(contractBalance).to.equal(0)
-			expect(finalBalanceBeneficiary).to.equal(initialBeneficiary.add(balanceContract))
+			expect(finalBalanceBeneficiary).to.equal(initialBeneficiary + balanceContract)
 
 			// Get all past events (useful for initial loading)
 			const filter = contract.filters.Withdrawal()
