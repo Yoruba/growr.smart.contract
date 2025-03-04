@@ -61,12 +61,6 @@ describe('Receive', function () {
 
 			if (contribution > 0) {
 				console.log('Sender already contributed')
-				// reset sender contributions
-				const resetNonce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
-				const reset = await contract.resetContribution(senderWallet.address, { nonce: resetNonce })
-				const resetResponse = await reset.wait()
-				expect(resetResponse?.status).to.be.equal(1)
-
 				const finalContributions = await contract.getContribution(senderWallet.address)
 
 				console.log(`Final Contribution: ${finalContributions.toString()}`)

@@ -18,8 +18,8 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
 	YearInfo[] public deployedYearInfos; // Array to store years with their addresses
 	mapping(uint256 => address) public deployedYears; // Mapping of year to contract address
-	event YearDeployed(uint256 year, address contractAddress);
-	event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
+	event YearDeployed(uint256 year, address contractAddress, address beneficiary, address implementation);
+	event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary);
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
 	constructor() {
@@ -65,17 +65,24 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 		implementation = _implementation;
 	}
 
-	function deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary) public onlyOwner returns (address) {
-		require(year >= 2000 && year <= 2060, "Invalid year");
-		require(deployedYears[year] == address(0), "Year already deployed");
-		emit YearParams(year, cost, withdrawalLimit);
+	function deployYear(uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary) public onlyOwner returns (address) {
+		require(_year >= 2000 && _year <= 2060, "Invalid year");
+		require(deployedYears[_year] == address(0), "Year already deployed");
+		emit YearParams(_year, _cost, _withdrawalLimit, _beneficiary);
 
-		bytes memory data = abi.encodeWithSignature("initialize(address, uint256, uint256, uint256, address)", owner(), year, cost, withdrawalLimit, beneficiary);
+		bytes memory data = abi.encodeWithSignature(
+			"initialize(address, uint256, uint256, uint256, address)",
+			msg.sender,
+			_year,
+			_cost,
+			_withdrawalLimit,
+			_beneficiary
+		);
 		ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), data);
 
-		deployedYears[year] = address(proxy);
-		deployedYearInfos.push(YearInfo({year: year, contractAddress: address(proxy)}));
-		emit YearDeployed(year, address(proxy));
+		deployedYears[_year] = address(proxy);
+		deployedYearInfos.push(YearInfo({year: _year, contractAddress: address(proxy)}));
+		emit YearDeployed(_year, address(proxy), _beneficiary, implementation);
 		return address(proxy);
 	}
 }

@@ -2,16 +2,16 @@
  {
   "type": "proxy",
   "name": "factory",
-  "address": "0x4759ff007f632f6eec324ea10b0b676419eAb099"
+  "address": "0xC67ce71cd9848f41B6021fd31fa8083D8E4e43A3"
  },
  {
   "type": "proxy",
   "name": "year",
-  "address": "0x8d437D73796Cb07b152Ae7f19a186Cde7E748e70"
+  "address": "0x77f63B6e68DDe9e3C0EA3C5645e4EB185F2E85fC"
  },
  {
   "type": "implementation",
   "name": "template",
-  "address": "0x1c87F1d672Fbe40874F44Ff2bCC353035d670426"
+  "address": "0x12a78dc1C8cF5a05dF1282b1A5f8923e8AE7ad87"
  }
 ]

@@ -35,8 +35,9 @@ export async function int() {
 		// Create a contract factory
 		const contractFactory = new ethers.ContractFactory(metadata.abi, metadata.bytecode, wallet)
 
-		const implementationAddress = await getImplementationAddress(provider, proxyAddress)
-		// console.log('Deployed implementation to:', implementationAddress)
+		const implementationAddress = process.env.IMPLEMENTATION_ADDRESS || ''
+		console.log('Deployed implementation to --->:', implementationAddress)
+
 
 		return { contractFactory, wallet, provider, implementationAddress, proxyAddress }
 	} catch (err: any) {
@@ -49,6 +50,9 @@ export async function deployFactory(contractFactory: ContractFactory, wallet: Wa
 	try {
 		console.log(`02 [FACTORY] deploying factory contract with template address: ${implementationAddress}`)
 		// Deploy the contract with the owner wallet address
+
+
+		
 		const contract = await upgrades.deployProxy(
 			contractFactory,
 			[wallet.address, implementationAddress], // constructor arguments

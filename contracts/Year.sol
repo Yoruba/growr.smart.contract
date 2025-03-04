@@ -16,20 +16,22 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	event FundsReceived(address indexed sender, uint256 amount, uint256 year);
 	event Withdrawal(address indexed sender, uint256 amount, address recipient, uint256 year);
 	event Trace(string functionCall, string message);
+	event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary);
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
 	constructor() {
 		_disableInitializers();
 	}
 
-	// Add an initializer function
-	function initialize(address _initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary) public initializer {
-		__Ownable_init(_initialOwner); // Initialize Ownable
+	// Add an initializer function. It is a function that is only called once and can be used to set initial values for variables.
+	function initialize(address _owner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary) public initializer {
+		__Ownable_init(_owner); // Initialize Ownable
 		__UUPSUpgradeable_init();
 		year = _year;
 		cost = _cost == 0 ? 1000 ether : _cost;
 		withdrawalLimit = _withdrawalLimit == 0 ? 10000 ether : _withdrawalLimit;
 		beneficiary = _beneficiary == address(0) ? 0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4 : _beneficiary;
+		emit YearParams(year, cost, withdrawalLimit, beneficiary);
 	}
 
 	function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}

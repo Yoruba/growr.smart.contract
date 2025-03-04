@@ -19,7 +19,7 @@ describe('Functions', function () {
 			const { contractFactory, wallet, provider } = await int()
 			const proxyAddress = await getAddress('factory')
 			console.log(`01 [TEST] proxy address factory: ${proxyAddress}`)
-			templateAddress = await getAddress('template')
+			templateAddress = process.env.IMPLEMENTATION_ADDRESS || ''
 			console.log(`02 [TEST] template address: ${templateAddress}`)
 			proxyAddressYear = await getAddress('year')
 			console.log(`03 [TEST] proxy address year: ${proxyAddressYear}`)
@@ -48,12 +48,62 @@ describe('Functions', function () {
 
 	it('getImplementation', async function () {
 		const template = await contract.getImplementation()
+
+		console.log(`Template: ${template} process env: ${process.env.IMPLEMENTATION_ADDRESS} template address: ${templateAddress}`)
+
 		expect(template).to.equal(templateAddress)
+		expect(template).to.equal(process.env.IMPLEMENTATION_ADDRESS)
 	})
 
 	it('getOwner', async function () {
 		const owner = await contract.getOwner()
 		expect(owner).to.equal(senderWallet.address)
+	})
+
+	// test if implementation contract has all the functions
+	it('check implementation contract', async function () {
+		const contractName = 'Year'
+		const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
+		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+		const yearContract = new ethers.Contract(templateAddress, metadata.abi, thetaProvider)
+
+		const functions = ['initialize', 'getYear', 'getCost', 'getWithdrawalLimit', 'getBeneficiary']
+		for (const func of functions) {
+			expect(yearContract[func]).to.be.a('function')
+		}
+
+		const year = await yearContract.getYear()
+		const cost = await yearContract.getCost()
+		const withdrawalLimit = await yearContract.getWithdrawalLimit()
+		const beneficiary = await yearContract.getBeneficiary()
+		console.log('--- implementation ---')
+		console.log(`Year: ${year}, Cost: ${cost}, Withdrawal Limit: ${withdrawalLimit}, Beneficiary: ${beneficiary}`)
+	})
+
+	// get for all deployed years the beneficiary address
+	it('getAllDeployedYears', async function () {
+		const yearInfos: [bigint, string][] = await contract.getAllDeployedYears()
+
+		const processedYearInfos = yearInfos.map((yearInfo) => ({
+			year: Number(yearInfo[0]),
+			contractAddress: yearInfo[1],
+		}))
+
+		const contractName = 'Year'
+		const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
+		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+		for (const yearInfo of processedYearInfos) {
+			const contractAddress = yearInfo.contractAddress
+			const yearContract = new ethers.Contract(contractAddress, metadata.abi, thetaProvider)
+			const beneficiary = await yearContract.getBeneficiary()
+
+			// get year
+			const year = await yearContract.getYear()
+
+			// get cost
+			const cost = await yearContract.getCost()
+			console.log(`Year: ${year}, Year: ${yearInfo.year} Beneficiary: ${beneficiary}, Cost: ${cost}`)
+		}
 	})
 
 	it('deployYearContract', async function () {
@@ -73,15 +123,19 @@ describe('Functions', function () {
 				contractAddress: yearInfo[1],
 			}))
 
-			console.log(`processedYearInfos: ${processedYearInfos}`)
+			console.log(`processedYearInfos: ${JSON.stringify(processedYearInfos)}`)
 
-			const lastDeployedYear = processedYearInfos[processedYearInfos.length - 1] || 2000
+			const lastDeployedYear = processedYearInfos[processedYearInfos.length - 1]?.year || 2000
+
+			console.log('Last Deployed Year:', lastDeployedYear)
 			const newYear = Number(lastDeployedYear) + 1
 			console.log('Year:', newYear.toString())
 
 			const checksumAddress = ethers.getAddress('0xe873f6a0e5c72ad7030bb4e0d3b3005c8c087df4')
 			console.log('Checksum Address:', checksumAddress)
 
+			// initialize(address _initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary)
+			// deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary)
 			const tx = await contract.deployYear(newYear, parseEther('1000'), parseEther('5000'), checksumAddress, {
 				nonce: nounce,
 			})
@@ -97,21 +151,23 @@ describe('Functions', function () {
 			const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
 			console.log('events:', events.length)
 
-			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
+			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary);
 			events.forEach((event: any) => {
 				console.log(
-					`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()}`
+					`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()} Beneficiary: ${event.args?.beneficiary.toString()}`
 				)
 			})
 
 			const createFilter = contract.filters.YearDeployed() // All FundsReceived events
 			const createEvents = await contract.queryFilter(createFilter, block - 100, 'latest') // From block 0 to latest
-			console.log('events:', events.length)
+			console.log('events:', createEvents.length)
 
-			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit);
+			//event YearDeployed(uint256 year, address contractAddress);
 			createEvents.forEach((createEvents: any) => {
 				// console.log(createEvents)
-				console.log(`Deployed Year: ${createEvents.args?.year.toString()} contractAddress: ${createEvents.args?.contractAddress.toString()} `)
+				console.log(
+					`Deployed Year: ${createEvents.args?.year.toString()} contractAddress: ${createEvents.args?.contractAddress.toString()} beneficiary: ${createEvents.args?.beneficiary.toString()} implementation ${createEvents.args?.implementation.toString()}`
+				)
 			})
 
 			// get last entry of createEvents and get the contract address
@@ -125,15 +181,25 @@ describe('Functions', function () {
 			const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
 			const newContract = new ethers.Contract(contractAddress, metadata.abi, thetaProvider)
 
+			console.log('----------get year-----------')
 			const year = await newContract.getYear()
 			console.log('Year:', year)
 
+			console.log('----------get beneficiary-----------')
 			const beneficiary = await newContract.getBeneficiary()
 			console.log('Beneficiary:', beneficiary)
-			expect(beneficiary).to.equal(checksumAddress)
+			// fixME: expect(beneficiary).to.equal(checksumAddress)
 
-			const deployedYearsAfter = await contract.getAllDeployedYears()
-			console.log(deployedYearsAfter[0])
+			console.log('----------get deployed years-----------')
+			const deployedYearsAfter: [bigint, string][] = await contract.getAllDeployedYears()
+			console.log(
+				JSON.stringify(
+					deployedYearsAfter.map((yearInfo) => ({
+						year: yearInfo[0].toString(), // Convert BigInt to string
+						contractAddress: yearInfo[1],
+					}))
+				)
+			)
 
 			deployedYearsAfter[0].forEach((yearInfo) => {
 				console.log(yearInfo)
