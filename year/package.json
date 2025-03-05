@@ -1,7 +1,7 @@
 {
-  "name": "growr-rewards",
+  "name": "growr-rewards-year",
   "version": "0.1.0",
-  "description": "ggrowr rewards",
+  "description": "ggrowr rewards year",
   "scripts": {
     "types": "npx hardhat typechain",
     "deploy-private": "npm run types && ENV_FILE_PATH=./.env.private npx hardhat run  --network theta_privatenet scripts/deploy.ts",

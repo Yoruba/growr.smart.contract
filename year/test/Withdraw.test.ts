@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import { initYear } from '../../scripts/year/init.year'
+import { initYear } from '../scripts/year/init.year'
 import { Wallet } from 'ethers'
-import { Year } from '../../typechain-types'
-import { getAddress, getProxyAddress, upgrade } from '../../scripts/year/upgrade.year'
+import { Year } from '../typechain-types'
+import { getAddress, getProxyAddress, upgrade } from '../scripts/year/upgrade.year'
 
 describe('Withdrawal', function () {
 	let contract: Year

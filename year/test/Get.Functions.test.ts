@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import { getProxyAddress, upgrade } from '../../scripts/year/upgrade.year'
-import { initYear } from '../../scripts/year/init.year'
-import { Year } from '../../typechain-types'
+import { Year } from '../typechain-types'
 import { ethers } from 'ethers'
+import { init } from '../scripts/init'
+import { upgrade } from '../scripts/upgrade'
 
 describe('Get Functions', function () {
 	let contract: Year
@@ -12,12 +12,14 @@ describe('Get Functions', function () {
 
 	before(async function () {
 		try {
-			const { contractFactory, wallet } = await initYear()
+			const { contractFactory, wallet } = await init()
 			const proxyAddress = process.env.PROXY_ADDRESS || ''
 			factory = contractFactory
 			address = proxyAddress
 			owner = wallet
 			contract = await upgrade(proxyAddress, contractFactory)
+			console.log('Contract:', contract)
+			console.log('address:', contract.target)
 		} catch (err: any) {
 			console.error('Error:', err.message)
 		}

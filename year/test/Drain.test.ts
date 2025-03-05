@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import { initYear } from '../../scripts/year/init.year'
+import { initYear } from '../scripts/year/init.year'
 import { Wallet, parseEther } from 'ethers'
-import { Year } from '../../typechain-types'
-import { getProxyAddress, upgrade } from '../../scripts/year/upgrade.year'
+import { Year } from '../typechain-types'
+import { getProxyAddress, upgrade } from '../scripts/year/upgrade.year'
 import { bigint } from 'hardhat/internal/core/params/argumentTypes'
 
 describe('Drain', function () {

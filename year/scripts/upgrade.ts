@@ -1,12 +1,11 @@
 import { upgrades } from 'hardhat'
 import { init } from './init'
-import fs from 'fs'
 import { runDeployment } from './deploy'
 
 // see .openzeppelin/<network>.json for the proxy address
 export async function upgrade(proxyAddress: string, contractFactory: any) {
 	try {
-		console.log(`03 [FACTORY] upgrading factory contract with: ${proxyAddress}`)
+		console.log(`03 [UPGRADE] contract with: ${proxyAddress}`)
 		// upgrade the contract with the owner wallet address
 		const contract = await upgrades.upgradeProxy(proxyAddress, contractFactory)
 
@@ -14,8 +13,8 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 		await contract.waitForDeployment()
 
 		// target is the proxy address and also proxy address which is used for the next upgrade
-		process.env.PROXY_ADDRESS_FACTORY = contract.target.toString()
-		console.log('04 [FACTORY] [PROXY] [TARGET] address factory:', process.env.PROXY_ADDRESS_FACTORY)
+		setProxyAddress(contract.target.toString())
+		console.log('04 [PROXY] [TARGET] address:', ProxyAddress)
 		// console.log('05 [FACTORY] [PROXY] contract address factory :', proxyAddress)
 
 		if (!contract) {
@@ -33,22 +32,11 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 	}
 }
 
-export async function getProxyAddress(network: string) {
-	try {
-		const jsonFile = `.openzeppelin/${network}.json`
-		// console.log(`reading proxy address from ${jsonFile}`)
-		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
-		return metadata.proxies[0].address
-	} catch (err: any) {
-		console.error('getProxyAddress failed:', err.message)
-	}
-}
-
 // run the init function first and then upgrade
 export async function runUpgrade() {
 	try {
 		const { contractFactory } = await init()
-		const proxyAddress = await getProxyAddress('unknown-366')
+		const proxyAddress = ProxyAddress
 		const response = await upgrade(proxyAddress, contractFactory)
 
 		console.log(JSON.stringify(response, null, 2))
@@ -57,4 +45,19 @@ export async function runUpgrade() {
 	} catch (err: any) {
 		console.error('Error:', err.message)
 	}
+}
+
+const proxy = 'PROXY_ADDRESS'
+export const ProxyAddress = process.env[proxy] || ''
+
+export function setProxyAddress(proxyAddress: string) {
+	process.env[proxy] = proxyAddress
+}
+
+// for implementation address
+const implementation = 'IMPLEMENTATION_ADDRESS'
+export const ImplementationAddress = process.env[implementation] || ''
+
+export function setImplementationAddress(implementationAddress: string) {
+	process.env[implementation] = implementationAddress
 }

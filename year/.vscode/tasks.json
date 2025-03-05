@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "node",
+      "problemMatcher": [],
+      "label": "npm: node",
+      "detail": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta start --config=../privatenet/validator --password=qwertyuiop"
+    }
+  ]
+}

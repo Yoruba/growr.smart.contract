@@ -58,7 +58,7 @@ const config: HardhatUserConfig = {
 		// The task name to run tests = 'test'
 		test: {
 			tasks: [{ command: 'test', params: { testFiles: ['{path}'] } }],
-			files: ['./test/**/*', './scripts/**/*'],
+			files: ['./test/**/*'],
 			verbose: true,
 		},
 	},
