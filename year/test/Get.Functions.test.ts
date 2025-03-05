@@ -3,21 +3,17 @@ import { Year } from '../typechain-types'
 import { ethers } from 'ethers'
 import { init } from '../scripts/init'
 import { upgrade } from '../scripts/upgrade'
+import { runDeployment } from '../scripts/deploy'
 
 describe('Get Functions', function () {
 	let contract: Year
-	let factory: any
-	let address: string
 	let owner: ethers.Wallet
 
 	before(async function () {
 		try {
-			const { contractFactory, wallet } = await init()
-			const proxyAddress = process.env.PROXY_ADDRESS || ''
-			factory = contractFactory
-			address = proxyAddress
+			const { contractFactory, wallet, metadata, provider, contract } = await runDeployment()
+
 			owner = wallet
-			contract = await upgrade(proxyAddress, contractFactory)
 			console.log('Contract:', contract)
 			console.log('address:', contract.target)
 		} catch (err: any) {

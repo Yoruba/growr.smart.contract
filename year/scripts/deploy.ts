@@ -2,9 +2,9 @@ import { ethers } from 'ethers'
 import { deploy } from './init'
 import { init } from './init'
 
-export async function runDeployment(): Promise<ethers.BaseContract | undefined> {
+export async function runDeployment(): Promise<any> {
 	console.log('00 [SETUP] run')
-	const { contractFactory, wallet,  metadata, provider } = await init()
+	const { contractFactory, wallet, metadata, provider } = await init()
 
 	const contract = await deploy(contractFactory, wallet)
 
@@ -18,7 +18,6 @@ export async function runDeployment(): Promise<ethers.BaseContract | undefined> 
 	const owner = await yearContract.getOwner()
 	console.log(`Owner: ${owner} Year: ${value}, Cost: ${cost}, Withdrawal Limit: ${withdrawalLimit}, Beneficiary: ${beneficiary}`)
 
-	return contract
+	return { contractFactory, wallet, metadata, provider, contract }
 }
 
-runDeployment()

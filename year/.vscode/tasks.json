@@ -7,6 +7,13 @@
       "problemMatcher": [],
       "label": "npm: node",
       "detail": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta start --config=../privatenet/validator --password=qwertyuiop"
+    },
+    {
+      "type": "npm",
+      "script": "prettier",
+      "problemMatcher": [],
+      "label": "npm: prettier",
+      "detail": "prettier --write --plugin=prettier-plugin-solidity 'contracts/**/*.sol'"
     }
   ]
 }
