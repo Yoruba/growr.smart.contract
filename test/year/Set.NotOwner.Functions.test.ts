@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { getProxyAddress, upgrade } from '../../scripts/year/upgrade.year'
-import { init } from '../../scripts/year/init.year'
+import { initYear } from '../../scripts/year/init.year'
 import { Year } from '../../typechain-types'
 import { JsonRpcProvider, ethers, getAddress, parseEther } from 'ethers'
 
@@ -14,7 +14,7 @@ describe('Set Not Owner Functions', function () {
 
 	before(async function () {
 		try {
-			const { contractFactory, wallet, provider } = await init()
+			const { contractFactory, wallet, provider } = await initYear()
 			const proxyAddress = await getProxyAddress('unknown-366')
 			factory = contractFactory
 			address = proxyAddress

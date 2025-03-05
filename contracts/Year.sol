@@ -25,12 +25,35 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
 	// Add an initializer function. It is a function that is only called once and can be used to set initial values for variables.
 	function initialize(address _owner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary) public initializer {
+		require(_owner != address(0), "Owner cannot be the zero address");
+
 		__Ownable_init(_owner); // Initialize Ownable
 		__UUPSUpgradeable_init();
-		year = _year;
-		cost = _cost == 0 ? 1000 ether : _cost;
-		withdrawalLimit = _withdrawalLimit == 0 ? 10000 ether : _withdrawalLimit;
-		beneficiary = _beneficiary == address(0) ? 0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4 : _beneficiary;
+
+		if (_year == 0) {
+			year = 2016;
+		} else {
+			year = _year;
+		}
+
+		if (_cost == 0) {
+			cost = 1000 ether;
+		} else {
+			cost = _cost;
+		}
+
+		if (_withdrawalLimit == 0) {
+			withdrawalLimit = 10000 ether;
+		} else {
+			withdrawalLimit = _withdrawalLimit;
+		}
+
+		if (_beneficiary == address(0)) {
+			beneficiary = 0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4;
+		} else {
+			beneficiary = _beneficiary;
+		}
+
 		emit YearParams(year, cost, withdrawalLimit, beneficiary);
 	}
 
@@ -49,6 +72,7 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	}
 
 	function setBeneficiary(address _beneficiary) public onlyOwner {
+		require(_beneficiary != address(0), "Beneficiary cannot be the zero address");
 		beneficiary = _beneficiary;
 	}
 
@@ -76,6 +100,11 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
 	function getBeneficiary() public view returns (address) {
 		return beneficiary;
+	}
+
+	// get owner
+	function getOwner() public view returns (address) {
+		return OwnableUpgradeable.owner();
 	}
 
 	// --- functions ---

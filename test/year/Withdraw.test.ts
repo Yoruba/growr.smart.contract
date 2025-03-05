@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { init } from '../../scripts/year/init.year'
+import { initYear } from '../../scripts/year/init.year'
 import { Wallet } from 'ethers'
 import { Year } from '../../typechain-types'
 import { getAddress, getProxyAddress, upgrade } from '../../scripts/year/upgrade.year'
@@ -14,7 +14,7 @@ describe('Withdrawal', function () {
 
 	beforeEach(async function () {
 		try {
-			const { contractFactory, wallet, provider } = await init()
+			const { contractFactory, wallet, provider } = await initYear()
 			const proxyAddress = await getProxyAddress('unknown-366')
 			factory = contractFactory
 			proxyContractAddress = proxyAddress

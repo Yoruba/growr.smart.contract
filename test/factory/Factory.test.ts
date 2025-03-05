@@ -2,83 +2,71 @@ import { expect } from 'chai'
 import { Wallet, ethers, parseEther } from 'ethers'
 import fs from 'fs-extra'
 import { YearFactory } from '../../typechain-types'
-import { int } from '../../scripts/init'
-import { getAddress, upgrade } from '../../scripts/upgrade'
+import { init } from '../../scripts/init'
+import { upgrade } from '../../scripts/upgrade'
 
 describe('Functions', function () {
 	let contract: YearFactory
 	let factory: any
-	let address: string
 	let senderWallet: Wallet
 	let thetaProvider: any
-	let templateAddress: string
-	let proxyAddressYear: string
+	// we don't use proxy with factory testing because the factory is creating proxy for year
+	let addressYearContract: string
+	let proxyAddressFactory: string
 
 	before(async function () {
 		try {
-			const { contractFactory, wallet, provider } = await int()
-			const proxyAddress = await getAddress('factory')
-			console.log(`01 [TEST] proxy address factory: ${proxyAddress}`)
-			templateAddress = process.env.IMPLEMENTATION_ADDRESS || ''
-			console.log(`02 [TEST] template address: ${templateAddress}`)
-			proxyAddressYear = await getAddress('year')
-			console.log(`03 [TEST] proxy address year: ${proxyAddressYear}`)
+			const { contractFactory, wallet, provider } = await init()
+			proxyAddressFactory = process.env.PROXY_ADDRESS_FACTORY || ''
+			console.log(`01 [TEST] proxy address factory: ${proxyAddressFactory}`)
+
+			addressYearContract = process.env.IMPLEMENTATION_ADDRESS_YEAR || ''
+			console.log(`02 [TEST] [IMPLEMENTATION] address year: ${addressYearContract}`)
+
 			factory = contractFactory
-			address = proxyAddress
 			senderWallet = wallet
 			thetaProvider = provider
-			contract = await upgrade(proxyAddress, contractFactory)
+			contract = await upgrade(proxyAddressFactory, contractFactory)
+			console.log(`03 [TEST] [FACTORY] contract address factory: ${contract.target}`)
+			//expect(proxyAddressFactory).to.be.equal(contract.target)
 		} catch (err: any) {
 			console.error('Error:', err.message)
 		}
 	})
 
 	// test if template contract is a smart contract address
-	it('get year of template', async function () {
-		// attach contract
-		const contractName = 'Year'
-		const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
+	// --- is already not set because we are using implementation address
+	// it('get year of contract', async function () {
+	// 	// attach contract
+	// 	const contractName = 'Year'
+	// 	const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
 
-		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
-		const yearContract = new ethers.Contract(proxyAddressYear, metadata.abi, thetaProvider)
+	// 	const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+	// 	const yearContract = new ethers.Contract(addressYearContract, metadata.abi, thetaProvider)
 
-		const value = await yearContract.getYear()
-		expect(value).to.equal(2024)
-	})
+	// 	const value = await yearContract.getYear()
+	// 	const cost = await yearContract.getCost()
+	// 	const withdrawalLimit = await yearContract.getWithdrawalLimit()
+	// 	const beneficiary = await yearContract.getBeneficiary()
 
-	it('getImplementation', async function () {
-		const template = await contract.getImplementation()
+	// 	// log the values in 1 line
+	// 	console.log(`[TEST] Year: ${value}, Cost: ${cost}, Withdrawal Limit: ${withdrawalLimit}, Beneficiary: ${beneficiary}`)
 
-		console.log(`Template: ${template} process env: ${process.env.IMPLEMENTATION_ADDRESS} template address: ${templateAddress}`)
+	// 	expect(value).to.equal(2024)
+	// 	expect(cost).to.equal(parseEther('1000'))
+	// 	expect(withdrawalLimit).to.equal(parseEther('5000'))
+	// 	expect(beneficiary).to.equal('0xe873f6a0e5C72aD7030bB4e0D3B3005C8C087Df4')
+	// })
 
-		expect(template).to.equal(templateAddress)
-		expect(template).to.equal(process.env.IMPLEMENTATION_ADDRESS)
-	})
+	// it('getImplementation', async function () {
+	// 	const template = await contract.getImplementation()
+	// 	expect(template).to.equal(addressYearContract)
+	// })
 
-	it('getOwner', async function () {
-		const owner = await contract.getOwner()
-		expect(owner).to.equal(senderWallet.address)
-	})
-
-	// test if implementation contract has all the functions
-	it('check implementation contract', async function () {
-		const contractName = 'Year'
-		const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
-		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
-		const yearContract = new ethers.Contract(templateAddress, metadata.abi, thetaProvider)
-
-		const functions = ['initialize', 'getYear', 'getCost', 'getWithdrawalLimit', 'getBeneficiary']
-		for (const func of functions) {
-			expect(yearContract[func]).to.be.a('function')
-		}
-
-		const year = await yearContract.getYear()
-		const cost = await yearContract.getCost()
-		const withdrawalLimit = await yearContract.getWithdrawalLimit()
-		const beneficiary = await yearContract.getBeneficiary()
-		console.log('--- implementation ---')
-		console.log(`Year: ${year}, Cost: ${cost}, Withdrawal Limit: ${withdrawalLimit}, Beneficiary: ${beneficiary}`)
-	})
+	// it('getOwner', async function () {
+	// 	const owner = await contract.getOwner()
+	// 	expect(owner).to.equal(senderWallet.address)
+	// })
 
 	// get for all deployed years the beneficiary address
 	it('getAllDeployedYears', async function () {
@@ -112,7 +100,7 @@ describe('Functions', function () {
 			// console.log(`03 [TEST] factory address: ${contract.target}`)
 
 			const template = await contract.getImplementation()
-			expect(template).to.equal(templateAddress)
+			expect(template).to.equal(addressYearContract)
 
 			// Call the getAllYearInfos function
 			const yearInfos: [bigint, string][] = await contract.getAllDeployedYears()

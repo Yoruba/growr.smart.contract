@@ -30,8 +30,9 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
 	// implement is the template contract that will be used to deploy new Year contracts
 	// It must be an implementation and not a proxy.
-	function initialize(address initialOwner, address _implementation) public initializer {
-		__Ownable_init(initialOwner);
+	function initialize(address _owner, address _implementation) public initializer {
+		require(_owner != address(0), "Owner cannot be the zero address");
+		__Ownable_init(_owner);
 		__UUPSUpgradeable_init();
 		implementation = _implementation;
 	}
@@ -62,6 +63,7 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	// Allows the owner of the factory to update the implementation contract.
 	// This is how you upgrade the Year contract logic.
 	function setImplementation(address _implementation) public onlyOwner {
+		require(_implementation != address(0), "Implementation cannot be the zero address");
 		implementation = _implementation;
 	}
 
@@ -70,18 +72,12 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 		require(deployedYears[_year] == address(0), "Year already deployed");
 		emit YearParams(_year, _cost, _withdrawalLimit, _beneficiary);
 
-		bytes memory data = abi.encodeWithSignature(
-			"initialize(address, uint256, uint256, uint256, address)",
-			msg.sender,
-			_year,
-			_cost,
-			_withdrawalLimit,
-			_beneficiary
-		);
+		bytes memory data = abi.encodeWithSignature("initialize(address, uint256, uint256, uint256, address)", owner(), _year, _cost, _withdrawalLimit, _beneficiary);
 		ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), data);
 
 		deployedYears[_year] = address(proxy);
 		deployedYearInfos.push(YearInfo({year: _year, contractAddress: address(proxy)}));
+		
 		emit YearDeployed(_year, address(proxy), _beneficiary, implementation);
 		return address(proxy);
 	}

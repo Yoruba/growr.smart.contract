@@ -1,8 +1,8 @@
 import { upgrades } from 'hardhat'
 import fs from 'fs'
 import { env } from 'process'
-import { runDeployment } from './deploy.year'
-import { init } from './init.year'
+import { runYearDeployment } from './deploy.year'
+import { initYear } from './init.year'
 
 // see .openzeppelin/<network>.json for the proxy address
 export async function upgrade(proxyAddress: string, contractFactory: any) {
@@ -31,28 +31,8 @@ export async function upgrade(proxyAddress: string, contractFactory: any) {
 		// if error message contains proxy create new proxy
 		if (err.message.includes('proxy')) {
 			console.log('creating new contract...')
-			await runDeployment()
+			await runYearDeployment()
 		}
-	}
-}
-
-// get proxy address from the network json file
-export async function getAddress(name: string) {
-	try {
-		const jsonFile = `./addresses.json`
-		// console.log(`reading proxy address from ${jsonFile}`)
-		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
-
-		// get where name is year with structure  { type: 'factory', name: 'year', address: contract.target }
-		const proxyAddress = metadata.find((item: any) => item.name === name).address
-
-		if (!proxyAddress) {
-			throw new Error(`-------------- Proxy address for ${name} is undefined --------------`)
-		}
-
-		return proxyAddress
-	} catch (err: any) {
-		console.error('getAddress failed:', err.message)
 	}
 }
 
@@ -70,9 +50,9 @@ export async function getProxyAddress(network: string) {
 // run the init function first and then upgrade
 export async function runUpgrade() {
 	try {
-		const { contractFactory } = await init()
-		const proxyAddress = await getAddress('year')
-		const response = await upgrade(proxyAddress, contractFactory)
+		const { yearFactory } = await initYear()
+		const proxyAddress = await getProxyAddress('unknown-366')
+		const response = await upgrade(proxyAddress, yearFactory)
 
 		console.log(JSON.stringify(response, null, 2))
 
