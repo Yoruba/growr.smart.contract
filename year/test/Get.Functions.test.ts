@@ -1,14 +1,13 @@
 import { expect } from 'chai'
-import { Year } from '../typechain-types'
-import { ethers } from 'ethers'
-import { init } from '../scripts/init'
-import { upgrade } from '../scripts/upgrade'
+import { ethers, parseEther } from 'ethers'
 import { runDeployment } from '../scripts/deploy'
 import { execSync } from 'child_process'
+import { Year } from '../typechain-types'
 
 describe('Get Functions', function () {
 	let yearContract: Year
 	let owner: ethers.Wallet
+	let factory: any
 
 	before(async function () {
 		try {
@@ -19,15 +18,11 @@ describe('Get Functions', function () {
 			console.log('Compiling contracts...')
 			execSync('npx hardhat compile', { stdio: 'inherit' })
 
-			// console.log('Compiling TypeScript files...')
-			// execSync('npx tsc ./scripts/**/*.ts', { stdio: 'inherit' })
-
 			// Deploy the updated contract
 			const { contractFactory, wallet, metadata, provider, contract } = await runDeployment()
+			factory = contractFactory
 			yearContract = contract
 			owner = wallet
-			// console.log('Contract:', contract)
-			console.log('address:', contract.target)
 		} catch (err: any) {
 			console.error('Error:', err.message)
 		}
@@ -72,6 +67,31 @@ describe('Get Functions', function () {
 		it('should return the beneficiary', async function () {
 			const beneficiary = await yearContract.getBeneficiary()
 			expect(beneficiary).to.equal('0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4')
+		})
+	})
+
+	// get owner
+	describe('getOwner', function () {
+		it('should return the owner', async function () {
+			const owner = await yearContract.getOwner()
+			expect(owner).to.equal(owner)
+		})
+	})
+
+	// deploy
+	describe('deploy', function () {
+		it('should deploy the contract', async function () {
+			const contract = await factory.deploy(0, 0, 0, '0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4')
+			await contract.waitForDeployment()
+
+			const year = await contract.getYear()
+			expect(year).to.equal(2016)
+			const balance = await contract.getBalance()
+			expect(balance).to.equal(0)
+			const cost = await contract.getCost()
+			expect(cost).to.equal(parseEther('1000'))
+			const limit = await contract.getWithdrawalLimit()
+			expect(limit).to.equal(parseEther('10000'))
 		})
 	})
 })
