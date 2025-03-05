@@ -4,6 +4,7 @@ import { init } from './init'
 
 export async function runDeployment(): Promise<any> {
 	console.log('00 [SETUP] run')
+	console.log('01 [INIT] run')
 	const { contractFactory, wallet, metadata, provider } = await init()
 
 	const contract = await deploy(contractFactory, wallet)

@@ -19,6 +19,9 @@ export async function init() {
 		const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
 		const contractFactory = new ethers.ContractFactory(metadata.abi, metadata.bytecode, wallet)
 
+		// log the constructor arguments from the abi
+		console.log('constructor args:', metadata.abi.find((x: any) => x.type === 'constructor').inputs)
+
 		return { contractFactory, wallet, provider, metadata }
 	} catch (err: any) {
 		console.error('init factory failed:', err.message)
@@ -30,10 +33,7 @@ export async function deploy(contractFactory: ContractFactory, wallet: Wallet) {
 	try {
 		const checksumAddressBeneficiary = ethers.getAddress('0xe873f6a0e5c72ad7030bb4e0d3b3005c8c087df4')
 
-		// [wallet.address, 2024, ethers.parseEther('1000'), ethers.parseEther('5000'), checksumAddressBeneficiary], // constructor arguments
-		const args = [checksumAddressBeneficiary]
-		console.log('02 [DEPLOY] contract with:', args)
-		const contract = await contractFactory.deploy()
+		const contract = await contractFactory.deploy(2024, ethers.parseEther('1000'), ethers.parseEther('5000'), checksumAddressBeneficiary)
 
 		// Wait for the deployment transaction to be mined
 		await contract.waitForDeployment()
