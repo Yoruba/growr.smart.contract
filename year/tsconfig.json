@@ -11,5 +11,5 @@
     "types": ["vitest/globals"]
   },
   "include": ["./scripts", "./test", "./typechain-types", "./interfaces"],
-  "files": ["./hardhat.config.ts"]
+  "files": ["./hardhat.config.ts", "./scripts/DeployParams.ts"]
 }
