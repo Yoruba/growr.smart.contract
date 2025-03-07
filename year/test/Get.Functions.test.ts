@@ -22,8 +22,14 @@ describe('Get Functions', function () {
 			execSync('npx hardhat compile', { stdio: 'inherit' })
 
 			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, deployParams.contractName)
-			contract = await deployer.deploy([2024, ethers.parseEther('1000'), ethers.parseEther('5000'), '0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4'])
 			owner = deployer.wallet
+			contract = await deployer.deployProxy([
+				owner.address,
+				2024,
+				ethers.parseEther('1000'),
+				ethers.parseEther('5000'),
+				'0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4',
+			])
 			factory = deployer.contractFactory
 		} catch (err: any) {
 			console.error('Error:', err.message)
@@ -77,23 +83,6 @@ describe('Get Functions', function () {
 		it('should return the owner', async function () {
 			const owner = await contract.getOwner()
 			expect(owner).to.equal(owner)
-		})
-	})
-
-	// deploy
-	describe('deploy', function () {
-		it('should deploy the contract', async function () {
-			const contract = await factory.deploy(0, 0, 0, '0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4')
-			await contract.waitForDeployment()
-
-			const year = await contract.getYear()
-			expect(year).to.equal(2016)
-			const balance = await contract.getBalance()
-			expect(balance).to.equal(0)
-			const cost = await contract.getCost()
-			expect(cost).to.equal(parseEther('1000'))
-			const limit = await contract.getWithdrawalLimit()
-			expect(limit).to.equal(parseEther('10000'))
 		})
 	})
 })

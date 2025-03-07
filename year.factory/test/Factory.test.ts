@@ -1,11 +1,13 @@
 import { expect } from 'chai'
 import { execSync } from 'child_process'
-import { Wallet, ethers, parseEther } from 'ethers'
+import { AbiCoder, Wallet, ethers, keccak256, parseEther, toUtf8Bytes } from 'ethers'
 import fs from 'fs-extra'
 import { DeployParams } from '../scripts/DeployParams'
-import { buildDeployParams } from '../scripts/deploy'
+import { buildDeployParams } from '../scripts/buildDeployParams'
 import { YearFactory } from '../typechain-types'
 import { Deployer } from '../scripts/Deployer'
+import { join, resolve } from 'path'
+import { get } from 'http'
 
 describe('Functions', function () {
 	let contract: YearFactory
@@ -28,11 +30,13 @@ describe('Functions', function () {
 
 			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, deployParams.contractName)
 			// fixme: address of year contract can be read from year address txt
-			addressYearContract = '0xe0a14cB9EDfe099D5CB75C60fEd374104D9Fb396'
-			contract = await deployer.deployProxy([addressYearContract])
-			thetaProvider = deployer.provider
+			addressYearContract = '0x0e64e0877Fe9f213B55e228118dD610157067BD2'
 			senderWallet = deployer.wallet
+			contract = await deployer.deployProxy([senderWallet.address, addressYearContract])
+			thetaProvider = deployer.provider
 			factory = deployer.contractFactory
+			const owner = await contract.getOwner()
+			console.log('Owner:', owner)
 		} catch (err: any) {
 			console.error('Error:', err.message)
 		}
@@ -62,15 +66,15 @@ describe('Functions', function () {
 	// 	expect(beneficiary).to.equal('0xe873f6a0e5C72aD7030bB4e0D3B3005C8C087Df4')
 	// })
 
-	// it('getImplementation', async function () {
-	// 	const template = await contract.getImplementation()
-	// 	expect(template).to.equal(addressYearContract)
-	// })
+	it('getImplementation', async function () {
+		const template = await contract.getImplementation()
+		expect(template).to.equal(addressYearContract)
+	})
 
-	// it('getOwner', async function () {
-	// 	const owner = await contract.getOwner()
-	// 	expect(owner).to.equal(senderWallet.address)
-	// })
+	it('getOwner', async function () {
+		const owner = await contract.getOwner()
+		expect(owner).to.equal(senderWallet.address)
+	})
 
 	// get for all deployed years the beneficiary address
 	// it('getAllDeployedYears', async function () {
@@ -80,10 +84,8 @@ describe('Functions', function () {
 	// 		year: Number(yearInfo[0]),
 	// 		contractAddress: yearInfo[1],
 	// 	}))
-
-	// 	const contractName = 'Year'
-	// 	const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
-	// 	const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+	// 	// Get the current working directory
+	// 	const metadata = getAbi()
 	// 	for (const yearInfo of processedYearInfos) {
 	// 		const contractAddress = yearInfo.contractAddress
 	// 		const yearContract = new ethers.Contract(contractAddress, metadata.abi, thetaProvider)
@@ -96,6 +98,19 @@ describe('Functions', function () {
 	// 		const cost = await yearContract.getCost()
 	// 		console.log(`Year: ${year}, Year: ${yearInfo.year} Beneficiary: ${beneficiary}, Cost: ${cost}`)
 	// 	}
+	// })
+
+	// it('get template props', async function () {
+	// 	const metadata = getAbi()
+	// 	const yearContract = new ethers.Contract(addressYearContract, metadata.abi, thetaProvider)
+	// 	const beneficiary = await yearContract.getBeneficiary()
+
+	// 	// get year
+	// 	const year = await yearContract.getYear()
+
+	// 	// get cost
+	// 	const cost = await yearContract.getCost()
+	// 	console.log(`Year: ${year}, Beneficiary: ${beneficiary}, Cost: ${cost}`)
 	// })
 
 	it('deployYearContract', async function () {
@@ -133,6 +148,29 @@ describe('Functions', function () {
 			})
 			await tx.wait()
 
+			// Listen for YearParams event globally
+			const filterYearParams = {
+				address: undefined, // Listen to all addresses
+				topics: [keccak256(toUtf8Bytes('YearParams(uint256,uint256,uint256,address)'))],
+			}
+
+			const blockHeight = await thetaProvider.getBlockNumber()
+			const eventsYearParams = await thetaProvider.provider.getLogs({
+				...filterYearParams,
+				fromBlock: blockHeight - 100,
+				toBlock: 'latest',
+			})
+
+			const abiCoder = new AbiCoder()
+			eventsYearParams.find((event: any) => {
+				const decoded = abiCoder.decode(['uint256', 'uint256', 'uint256', 'address'], event.data)
+				console.log('YearParams event:', decoded)
+			})
+
+			// get year address by year
+			const yearAddress = await contract.getYearContract(newYear)
+			console.log('Year Address---:', yearAddress)
+
 			// Get all past events (useful for initial loading)
 			const filter = contract.filters.YearParams() // All FundsReceived events
 
@@ -164,14 +202,23 @@ describe('Functions', function () {
 
 			// get last entry of createEvents and get the contract address
 			const lastEvent = createEvents[createEvents.length - 1]
-			const contractAddress = lastEvent.args?.contractAddress.toString()
-			console.log('Contract Address:', contractAddress)
+			const yearContractAddress = lastEvent.args?.contractAddress.toString()
 
-			// attach contract by address
-			const contractName = 'Year'
-			const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
-			const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
-			const newContract = new ethers.Contract(contractAddress, metadata.abi, thetaProvider)
+			console.log('----------get deployed years-----------')
+			const deployedYearsAfter: [bigint, string][] = await contract.getAllDeployedYears()
+
+			const deployedYears = deployedYearsAfter.map((yearInfo) => ({
+				year: yearInfo[0].toString(), // Convert BigInt to string
+				contractAddress: yearInfo[1],
+			}))
+
+			console.log(JSON.stringify(deployedYears))
+
+			const addressDeployedYear = deployedYears[deployedYears.length - 1].contractAddress
+			console.log('Year Contract Address:', yearContractAddress, 'Deployed Year Contract Address:', addressDeployedYear)
+
+			const metadata = getAbi()
+			const newContract = new ethers.Contract(yearContractAddress, metadata.abi, thetaProvider)
 
 			console.log('----------get year-----------')
 			const year = await newContract.getYear()
@@ -181,17 +228,6 @@ describe('Functions', function () {
 			const beneficiary = await newContract.getBeneficiary()
 			console.log('Beneficiary:', beneficiary)
 			// fixME: expect(beneficiary).to.equal(checksumAddress)
-
-			console.log('----------get deployed years-----------')
-			const deployedYearsAfter: [bigint, string][] = await contract.getAllDeployedYears()
-			console.log(
-				JSON.stringify(
-					deployedYearsAfter.map((yearInfo) => ({
-						year: yearInfo[0].toString(), // Convert BigInt to string
-						contractAddress: yearInfo[1],
-					}))
-				)
-			)
 
 			deployedYearsAfter[0].forEach((yearInfo) => {
 				console.log(yearInfo)
@@ -203,3 +239,17 @@ describe('Functions', function () {
 		}
 	})
 })
+
+function getAbi() {
+	const currentPath = process.cwd()
+
+	// Go one folder lower than the project folder
+	const lowerFolderPath = resolve(currentPath, '..')
+
+	const contractName = 'Year'
+	const jsonFile = `${lowerFolderPath}/year/artifacts/contracts/${contractName}.sol/${contractName}.json`
+	console.log('Json File:', jsonFile)
+
+	const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
+	return metadata
+}

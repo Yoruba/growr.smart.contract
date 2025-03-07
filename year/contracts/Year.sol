@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /// @custom:security-contact hi@ggrow.io
-contract Year is Ownable {
+contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	uint256 public year;
 	uint256 public cost;
 	uint256 public withdrawalLimit;
@@ -16,7 +18,19 @@ contract Year is Ownable {
 	event Trace(string functionCall, string message);
 	event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary);
 
-	constructor(uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary) Ownable(msg.sender) {
+	/// @custom:oz-upgrades-unsafe-allow constructor
+	constructor() {
+		_disableInitializers();
+	}
+
+	// Add an initializer function. It is a function that is only called once and can be used to set initial values for variables.
+	function initialize(address _owner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary) public initializer {
+		require(_owner != address(0), "Owner cannot be the zero address");
+		require(_beneficiary != address(0), "Beneficiary cannot be the zero address");
+
+		__Ownable_init(_owner); // Initialize Ownable
+		__UUPSUpgradeable_init();
+
 		if (_year == 0) {
 			year = 2016;
 		} else {
@@ -43,6 +57,8 @@ contract Year is Ownable {
 
 		emit YearParams(year, cost, withdrawalLimit, beneficiary);
 	}
+
+	function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
 	// --- setters ---
 
@@ -88,7 +104,7 @@ contract Year is Ownable {
 	}
 
 	function getOwner() public view returns (address) {
-		return Ownable.owner();
+		return OwnableUpgradeable.owner();
 	}
 
 	// --- functions ---
