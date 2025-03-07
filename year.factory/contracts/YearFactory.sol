@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 // @custom:security-contact hi@ggrow.io
 // The YearFactory contract manages the deployment of Year contracts.
-contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
+contract YearFactory is Ownable {
 	address public implementation; // Address of the Year contract implementation
 
 	struct YearInfo {
@@ -20,22 +19,11 @@ contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	mapping(uint256 => address) public deployedYears; // Mapping of year to contract address
 	event YearDeployed(uint256 year, address contractAddress, address beneficiary, address implementation);
 
-	/// @custom:oz-upgrades-unsafe-allow constructor
-	constructor() {
-		_disableInitializers();
-	}
-
-	// implement is the template contract that will be used to deploy new Year contracts
-	// It must be an implementation and not a proxy.
-	function initialize(address _owner, address _implementation) public initializer {
+	constructor(address _owner, address _implementation) Ownable(msg.sender) {
 		require(_owner != address(0), "Owner cannot be the zero address");
 		require(_implementation != address(0), "Implementation cannot be the zero address");
-		__Ownable_init(_owner);
-		__UUPSUpgradeable_init();
 		implementation = _implementation;
 	}
-
-	function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
 	// --- getters ---
 

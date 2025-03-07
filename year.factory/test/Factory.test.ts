@@ -32,7 +32,7 @@ describe('Functions', function () {
 			// fixme: address of year contract can be read from year address txt
 			addressYearContract = '0x4815592a9368F86dD269969ba828Ad2385dFe856'
 			senderWallet = deployer.wallet
-			contract = await deployer.deployProxy([senderWallet.address, addressYearContract])
+			contract = await deployer.deploy([senderWallet.address, addressYearContract])
 			thetaProvider = deployer.provider
 			factory = deployer.contractFactory
 			const owner = await contract.getOwner()
@@ -144,7 +144,10 @@ describe('Functions', function () {
 			// initialize(address _initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary)
 			// deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary)
 			const tx = await contract.deployYear(newYear, parseEther('1000'), parseEther('5000'), checksumAddress)
-			await tx.wait()
+			const receipt = await tx.wait()
+
+			const event = receipt?.logs
+			console.log('Event:', event)
 
 			// get year address by year
 			const yearAddress = await contract.getYearContract(newYear)
@@ -221,7 +224,7 @@ describe('Functions', function () {
 			const blockHeight = await thetaProvider.getBlockNumber()
 			const eventsYearParams = await thetaProvider.provider.getLogs({
 				...filterYearParams,
-				fromBlock: blockHeight - 100,
+				fromBlock: blockHeight - 1000,
 				toBlock: 'latest',
 			})
 
