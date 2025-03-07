@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { ethers, parseEther } from 'ethers'
-import { buildDeployParams } from '../scripts/deploy'
+import { buildDeployParams } from '../scripts/buildDeployParams'
 import { DeployParams } from '../scripts/DeployParams'
 import { execSync } from 'child_process'
 import { Year } from '../typechain-types'

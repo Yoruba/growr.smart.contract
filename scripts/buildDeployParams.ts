@@ -7,5 +7,5 @@ export function buildDeployParams(): DeployParams {
 
 	const { API_URL, PRIVATE_KEY } = process.env
 
-	return { contractName: 'YearFactory', apiUrl: API_URL || '', privateKey: PRIVATE_KEY || '' }
+	return { contractName: 'Year', apiUrl: API_URL || '', privateKey: PRIVATE_KEY || '' }
 }

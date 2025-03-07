@@ -1,5 +1,0 @@
-{
-  "watch": ["Watcher.ts", "Watch.ts"],
-  "ext": "ts",
-  "exec": "ts-node Watch.ts"
-}

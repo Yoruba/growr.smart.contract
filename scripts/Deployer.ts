@@ -91,11 +91,11 @@ export class Deployer {
 		}
 	}
 
-	public async writeContractAddress() {
+	public async writeContractAddress(params: any[]) {
 		try {
 			const date = new Date().toISOString()
 			const file = `./${this.contractName}.txt`
-			const line = `${date} ${this.contractName} proxy: ${this.contractAddress} implementation: ${this.implementationAddress} \n`
+			const line = `${date} ${this.contractName} proxy: ${this.contractAddress} implementation: ${this.implementationAddress} params ${[...params]}  \n`
 			fs.appendFileSync(file, line)
 		} catch (err: any) {
 			console.error('writeContractAddress failed:', err.message)
