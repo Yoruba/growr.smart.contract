@@ -30,7 +30,7 @@ describe('Functions', function () {
 
 			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, deployParams.contractName)
 			// fixme: address of year contract can be read from year address txt
-			addressYearContract = '0x0e64e0877Fe9f213B55e228118dD610157067BD2'
+			addressYearContract = '0x4815592a9368F86dD269969ba828Ad2385dFe856'
 			senderWallet = deployer.wallet
 			contract = await deployer.deployProxy([senderWallet.address, addressYearContract])
 			thetaProvider = deployer.provider
@@ -143,50 +143,29 @@ describe('Functions', function () {
 
 			// initialize(address _initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary)
 			// deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary)
-			const tx = await contract.deployYear(newYear, parseEther('1000'), parseEther('5000'), checksumAddress, {
-				nonce: nounce,
-			})
+			const tx = await contract.deployYear(newYear, parseEther('1000'), parseEther('5000'), checksumAddress)
 			await tx.wait()
-
-			// Listen for YearParams event globally
-			const filterYearParams = {
-				address: undefined, // Listen to all addresses
-				topics: [keccak256(toUtf8Bytes('YearParams(uint256,uint256,uint256,address)'))],
-			}
-
-			const blockHeight = await thetaProvider.getBlockNumber()
-			const eventsYearParams = await thetaProvider.provider.getLogs({
-				...filterYearParams,
-				fromBlock: blockHeight - 100,
-				toBlock: 'latest',
-			})
-
-			const abiCoder = new AbiCoder()
-			eventsYearParams.find((event: any) => {
-				const decoded = abiCoder.decode(['uint256', 'uint256', 'uint256', 'address'], event.data)
-				console.log('YearParams event:', decoded)
-			})
 
 			// get year address by year
 			const yearAddress = await contract.getYearContract(newYear)
 			console.log('Year Address---:', yearAddress)
 
 			// Get all past events (useful for initial loading)
-			const filter = contract.filters.YearParams() // All FundsReceived events
+			// const filter = contract.filters.YearParams() // All FundsReceived events
 
-			// get last block
+			// // get last block
 			const block = await thetaProvider.getBlockNumber()
-			console.log('Block:', block)
+			// console.log('Block:', block)
 
-			const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
-			console.log('events:', events.length)
+			// const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
+			// console.log('events:', events.length)
 
-			//event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary);
-			events.forEach((event: any) => {
-				console.log(
-					`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()} Beneficiary: ${event.args?.beneficiary.toString()}`
-				)
-			})
+			// //event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary);
+			// events.forEach((event: any) => {
+			// 	console.log(
+			// 		`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()} Beneficiary: ${event.args?.beneficiary.toString()}`
+			// 	)
+			// })
 
 			const createFilter = contract.filters.YearDeployed() // All FundsReceived events
 			const createEvents = await contract.queryFilter(createFilter, block - 100, 'latest') // From block 0 to latest
@@ -231,6 +210,25 @@ describe('Functions', function () {
 
 			deployedYearsAfter[0].forEach((yearInfo) => {
 				console.log(yearInfo)
+			})
+
+			// Listen for YearParams event globally
+			const filterYearParams = {
+				address: undefined, // Listen to all addresses
+				topics: [keccak256(toUtf8Bytes('YearParams(uint256,uint256,uint256,address)'))],
+			}
+
+			const blockHeight = await thetaProvider.getBlockNumber()
+			const eventsYearParams = await thetaProvider.provider.getLogs({
+				...filterYearParams,
+				fromBlock: blockHeight - 100,
+				toBlock: 'latest',
+			})
+
+			const abiCoder = new AbiCoder()
+			eventsYearParams.find((event: any) => {
+				const decoded = abiCoder.decode(['uint256', 'uint256', 'uint256', 'address'], event.data)
+				console.log('YearParams event:', decoded)
 			})
 
 			console.log('----------end-----------')

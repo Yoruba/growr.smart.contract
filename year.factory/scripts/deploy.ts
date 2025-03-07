@@ -11,7 +11,7 @@ export async function deploy() {
 		const walletAddress = deployer.wallet.address.toString()
 		// fixme: read contract params from year address txt
 		console.log(`wallet address: ${walletAddress}`)
-		await deployer.deployProxy([walletAddress, '0x0e64e0877Fe9f213B55e228118dD610157067BD2'])
+		await deployer.deployProxy([walletAddress, '0x4815592a9368F86dD269969ba828Ad2385dFe856'])
 		await deployer.writeContractAddress()
 		console.log(`Deployed contract ${deployParams.contractName} at address ${deployer.contractAddress}`)
 
@@ -39,4 +39,4 @@ export async function deploy() {
 }
 
 // for deploy by npm run deploy
-deploy()
+// deploy()

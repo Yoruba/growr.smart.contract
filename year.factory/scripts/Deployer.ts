@@ -62,13 +62,13 @@ export class Deployer {
 			)
 			// Wait for the deployment transaction to be mined
 			await this.contract.waitForDeployment()
+			this.implementationAddress = await upgrades.erc1967.getImplementationAddress(this.contractAddress)
 
 			this.contractAddress = this.contract.target.toString()
 			console.log(
 				`Deployed proxy contract ${this.contractName} at address ${this.contractAddress} with implementation address ${this.implementationAddress}`
 			)
 
-			this.implementationAddress = await upgrades.erc1967.getImplementationAddress(this.contractAddress)
 			return this.contract
 		} catch (err: any) {
 			console.error('deployProxy failed:', err.message)
