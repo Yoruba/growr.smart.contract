@@ -1,19 +1,27 @@
-// create car smart contract
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// Create car smart contract
 contract Car {
     string public make;
     string public model;
     uint256 public year;
-event CarCreated(string make, string model, uint256 year);
+    bool private initialized;
 
-   
-    constructor(string memory _make, string memory _model, uint256 _year) {
+    event CarCreated(string make, string model, uint256 year);
+
+    // Modifier to check if the contract is not initialized
+    modifier notInitialized() {
+        require(!initialized, "Contract is already initialized");
+        _;
+    }
+
+    // Initializer function to set car properties
+    function initialize(string memory _make, string memory _model, uint256 _year) public notInitialized {
         make = _make;
         model = _model;
         year = _year;
+        initialized = true;
+        emit CarCreated(_make, _model, _year);
     }
 
     // Function to set car make
@@ -31,7 +39,7 @@ event CarCreated(string make, string model, uint256 year);
         year = _year;
     }
 
-    // // Function to get car details
+    // Function to get car details
     function getCarDetails() public view returns (string memory, string memory, uint256) {
         return (make, model, year);
     }

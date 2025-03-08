@@ -1,13 +1,10 @@
-import { expect } from 'chai'
 import { execSync } from 'child_process'
-import { AbiCoder, Wallet, ethers, keccak256, parseEther, toUtf8Bytes } from 'ethers'
+import { Wallet, ethers } from 'ethers'
 import fs from 'fs-extra'
 import { DeployParams } from '../scripts/DeployParams'
 import { buildDeployParams } from '../scripts/buildDeployParams'
 import { Deployer } from '../scripts/Deployer'
-import { join, resolve } from 'path'
-import { get } from 'http'
-import { YearFactory } from '../typechain-types/contracts/YearFactory'
+import { resolve } from 'path'
 
 describe('Functions', function () {
 	let contract: any
@@ -40,7 +37,7 @@ describe('Functions', function () {
 
 	it('deployYearContract', async function () {
 		try {
-			const tx = await contract.createCar('new', '2', 2034)
+			const tx = await contract.createCar('new', '122', 2034)
 			const receipt = await tx.wait()
 
 			const event = receipt?.logs
