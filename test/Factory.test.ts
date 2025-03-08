@@ -40,7 +40,7 @@ describe('Functions', function () {
 
 	it('deployYearContract', async function () {
 		try {
-			const tx = await contract.createCar()
+			const tx = await contract.createCar('new', '2', 2034)
 			const receipt = await tx.wait()
 
 			const event = receipt?.logs

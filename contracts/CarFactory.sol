@@ -13,9 +13,9 @@ contract CarFactory {
     Car[] public cars;
 
     // Function to create a new car contract
-    function createCar() public {
+    function createCar(string memory _make, string memory _model, uint256 _year) public {
         // Create a new car contract
-        Car newCar = new Car();
+        Car newCar = new Car(_make, _model, _year);
         // Add the new car contract to the array
         cars.push(newCar);
     }
