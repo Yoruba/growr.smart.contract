@@ -52,8 +52,7 @@ export class Deployer {
 	}
 
 	public async deployProxy(contractParams: any[]) {
-		console.log('Deploying proxy...')
-		console.log(`${[...contractParams]}`)
+		console.log(`Deploying proxy with params ${[...contractParams]}`)
 		try {
 			this.contract = await upgrades.deployProxy(
 				this.contractFactory,
