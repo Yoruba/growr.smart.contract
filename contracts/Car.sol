@@ -11,6 +11,11 @@ contract Car is Initializable, UUPSUpgradeable {
 
     event CarCreated(string make, string model, uint256 year);
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+	constructor() {
+		_disableInitializers();
+	}
+
     // Initializer function to set car properties
     function initialize(string memory _make, string memory _model, uint256 _year) public initializer {
         make = _make;

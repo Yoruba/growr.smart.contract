@@ -27,7 +27,7 @@ describe('Functions', function () {
 
 			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, 'CarFactory')
 			senderWallet = deployer.wallet
-			contract = await deployer.deploy([])
+			contract = await deployer.deploy(['0x1e65E2Bb407a522861D437F9c6d5c3eF2a2103A7'])
 			thetaProvider = deployer.provider
 			factory = deployer.contractFactory
 		} catch (err: any) {

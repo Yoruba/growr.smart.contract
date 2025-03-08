@@ -1,2 +1,4 @@
 2025-03-08T19:05:59.484Z network: private proxy: 0x97aEa293C720b070b3E8d38AAE024084e47a1E99 implementation: undefined params   
 2025-03-08T19:18:09.474Z network: private proxy: 0x015142F6B8235b975D1452dD212B0504b14280b8 implementation: undefined params   
+2025-03-08T19:36:08.120Z network: testnet proxy: undefined implementation: undefined params car,new,2034  
+2025-03-08T19:36:42.924Z network: private proxy: 0x0eB3fA4Cea92BfE8479eE42c37E0a06b8C26B0d0 implementation: 0x1e65E2Bb407a522861D437F9c6d5c3eF2a2103A7 params car,new,2034  
