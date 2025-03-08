@@ -8,10 +8,11 @@ const year = 2024
 export async function deploy() {
 	const deployParams: DeployParams = buildDeployParams()
 	const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, deployParams.contractName)
-	const params = [deployer.wallet.address, year, ethers.parseEther('1000'), ethers.parseEther('5000'), '0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4']
+	const params: any[] = [] // [deployer.wallet.address, year, ethers.parseEther('1000'), ethers.parseEther('5000'), '0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4']
 
-	await deployer.deployProxy(params)
-	await deployer.writeContractAddress(params)
+	await deployer.deploy(params)
+	// await deployer.deployProxy(params) fixme:
+	await deployer.writeContractAddress(params, deployParams.network)
 	console.log(`Deployed contract ${deployParams.contractName} at address ${deployer.contractAddress}`)
 
 	// Listen for YearParams event globally

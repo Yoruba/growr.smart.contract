@@ -28,129 +28,26 @@ describe('Functions', function () {
 			console.log('Compiling contracts...')
 			execSync('npx hardhat compile', { stdio: 'inherit' })
 
-			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, 'YearFactory')
-			// fixme: address of year contract can be read from year address txt
-			addressYearContract = '0x11Dc500b42AAF8F3185dF5DD0D586C07d24929DD'
+			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, 'CarFactory')
 			senderWallet = deployer.wallet
-			contract = await deployer.deploy([senderWallet.address, addressYearContract])
+			contract = await deployer.deploy([])
 			thetaProvider = deployer.provider
 			factory = deployer.contractFactory
-			const owner = await contract.getOwner()
-			console.log('Owner:', owner)
 		} catch (err: any) {
 			console.error('Error:', err.message)
 		}
 	})
 
-	// test if template contract is a smart contract address
-	// --- is already not set because we are using implementation address
-	// it('get year of contract', async function () {
-	// 	// attach contract
-	// 	const contractName = 'Year'
-	// 	const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json`
-
-	// 	const metadata = JSON.parse(fs.readFileSync(jsonFile).toString())
-	// 	const yearContract = new ethers.Contract(addressYearContract, metadata.abi, thetaProvider)
-
-	// 	const value = await yearContract.getYear()
-	// 	const cost = await yearContract.getCost()
-	// 	const withdrawalLimit = await yearContract.getWithdrawalLimit()
-	// 	const beneficiary = await yearContract.getBeneficiary()
-
-	// 	// log the values in 1 line
-	// 	console.log(`[TEST] Year: ${value}, Cost: ${cost}, Withdrawal Limit: ${withdrawalLimit}, Beneficiary: ${beneficiary}`)
-
-	// 	expect(value).to.equal(2024)
-	// 	expect(cost).to.equal(parseEther('1000'))
-	// 	expect(withdrawalLimit).to.equal(parseEther('5000'))
-	// 	expect(beneficiary).to.equal('0xe873f6a0e5C72aD7030bB4e0D3B3005C8C087Df4')
-	// })
-
-	it('getImplementation', async function () {
-		const template = await contract.getImplementation()
-		expect(template).to.equal(addressYearContract)
-	})
-
-	it('getOwner', async function () {
-		const owner = await contract.getOwner()
-		expect(owner).to.equal(senderWallet.address)
-	})
-
-	// get for all deployed years the beneficiary address
-	// it('getAllDeployedYears', async function () {
-	// 	const yearInfos: [bigint, string][] = await contract.getAllDeployedYears()
-
-	// 	const processedYearInfos = yearInfos.map((yearInfo) => ({
-	// 		year: Number(yearInfo[0]),
-	// 		contractAddress: yearInfo[1],
-	// 	}))
-	// 	// Get the current working directory
-	// 	const metadata = getAbi()
-	// 	for (const yearInfo of processedYearInfos) {
-	// 		const contractAddress = yearInfo.contractAddress
-	// 		const yearContract = new ethers.Contract(contractAddress, metadata.abi, thetaProvider)
-	// 		const beneficiary = await yearContract.getBeneficiary()
-
-	// 		// get year
-	// 		const year = await yearContract.getYear()
-
-	// 		// get cost
-	// 		const cost = await yearContract.getCost()
-	// 		console.log(`Year: ${year}, Year: ${yearInfo.year} Beneficiary: ${beneficiary}, Cost: ${cost}`)
-	// 	}
-	// })
-
-	// it('get template props', async function () {
-	// 	const metadata = getAbi()
-	// 	const yearContract = new ethers.Contract(addressYearContract, metadata.abi, thetaProvider)
-	// 	const beneficiary = await yearContract.getBeneficiary()
-
-	// 	// get year
-	// 	const year = await yearContract.getYear()
-
-	// 	// get cost
-	// 	const cost = await yearContract.getCost()
-	// 	console.log(`Year: ${year}, Beneficiary: ${beneficiary}, Cost: ${cost}`)
-	// })
-
 	it('deployYearContract', async function () {
 		try {
-			const nounce = await thetaProvider.getTransactionCount(senderWallet.address, 'latest')
-			// console.log(`03 [TEST] factory address: ${contract.target}`)
-
-			const template = await contract.getImplementation()
-			expect(template).to.equal(addressYearContract)
-
-			// Call the getAllYearInfos function
-			const yearInfos: [bigint, string][] = await contract.getAllDeployedYears()
-
-			// Process the returned array
-			const processedYearInfos = yearInfos.map((yearInfo) => ({
-				year: Number(yearInfo[0]),
-				contractAddress: yearInfo[1],
-			}))
-
-			console.log(`processedYearInfos: ${JSON.stringify(processedYearInfos)}`)
-
-			const lastDeployedYear = processedYearInfos[processedYearInfos.length - 1]?.year || 2000
-
-			console.log('Last Deployed Year:', lastDeployedYear)
-			const newYear = Number(lastDeployedYear) + 1
-			console.log('Year:', newYear.toString())
-
-			const checksumAddress = ethers.getAddress('0xe873f6a0e5c72ad7030bb4e0d3b3005c8c087df4')
-			console.log('Checksum Address:', checksumAddress)
-
-			// initialize(address _initialOwner, uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary)
-			// deployYear(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary)
-			const tx = await contract.deployYear(newYear, parseEther('1000'), parseEther('5000'), checksumAddress)
+			const tx = await contract.createCar()
 			const receipt = await tx.wait()
 
 			const event = receipt?.logs
 			console.log('Event:', event)
 
 			// get year address by year
-			const yearAddress = await contract.getYearContract(newYear)
+			const yearAddress = await contract.getNumberOfCars()
 			console.log('Year Address---:', yearAddress)
 
 			// Get all past events (useful for initial loading)

@@ -1,6 +1,5 @@
 import { JsonRpcProvider, Wallet, ethers } from 'ethers'
 import fs from 'fs-extra'
-import { Year } from '../typechain-types'
 import { upgrades } from 'hardhat'
 
 export class Deployer {
@@ -8,7 +7,7 @@ export class Deployer {
 	private privateKey: string
 	private contractName: string
 	public provider!: JsonRpcProvider
-	public contract!: Year
+	public contract!: any
 	public contractAddress!: string
 	public implementationAddress!: string
 	public abi: any
@@ -90,11 +89,11 @@ export class Deployer {
 		}
 	}
 
-	public async writeContractAddress(params: any[]) {
+	public async writeContractAddress(params: any[], network: string) {
 		try {
 			const date = new Date().toISOString()
 			const file = `./${this.contractName}.txt`
-			const line = `${date} ${this.contractName} proxy: ${this.contractAddress} implementation: ${this.implementationAddress} params ${[...params]}  \n`
+			const line = `${date} network: ${network} proxy: ${this.contractAddress} implementation: ${this.implementationAddress} params ${[...params]}  \n`
 			fs.appendFileSync(file, line)
 		} catch (err: any) {
 			console.error('writeContractAddress failed:', err.message)
