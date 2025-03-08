@@ -50,86 +50,95 @@ describe('Functions', function () {
 			const yearAddress = await contract.getNumberOfCars()
 			console.log('Year Address---:', yearAddress)
 
+			const carAddress = await contract.getCar(0)
+			console.log('Car Address:', carAddress)
+
+			// attach to car contract
+			const carContract = new ethers.Contract(carAddress, getAbi().abi, thetaProvider)
+			// get car details
+			const carDetails = await carContract.getCarDetails()
+			console.log('Car Details:', carDetails)
+
 			// Get all past events (useful for initial loading)
 			// const filter = contract.filters.YearParams() // All FundsReceived events
 
-			// // get last block
-			const block = await thetaProvider.getBlockNumber()
-			// console.log('Block:', block)
+			// // // get last block
+			// const block = await thetaProvider.getBlockNumber()
+			// // console.log('Block:', block)
 
-			// const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
-			// console.log('events:', events.length)
+			// // const events = await contract.queryFilter(filter, block - 100, 'latest') // From block 0 to latest
+			// // console.log('events:', events.length)
 
-			// //event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary);
-			// events.forEach((event: any) => {
+			// // //event YearParams(uint256 year, uint256 cost, uint256 withdrawalLimit, address beneficiary);
+			// // events.forEach((event: any) => {
+			// // 	console.log(
+			// // 		`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()} Beneficiary: ${event.args?.beneficiary.toString()}`
+			// // 	)
+			// // })
+
+			// const createFilter = contract.filters.YearDeployed() // All FundsReceived events
+			// const createEvents = await contract.queryFilter(createFilter, block - 100, 'latest') // From block 0 to latest
+			// console.log('events:', createEvents.length)
+
+			// //event YearDeployed(uint256 year, address contractAddress);
+			// createEvents.forEach((createEvents: any) => {
+			// 	// console.log(createEvents)
 			// 	console.log(
-			// 		`Year: ${event.args?.year.toString()} Cost: ${event.args?.cost.toString()} Withdrawal Limit: ${event.args?.withdrawalLimit.toString()} Beneficiary: ${event.args?.beneficiary.toString()}`
+			// 		`Deployed Year: ${createEvents.args?.year.toString()} contractAddress: ${createEvents.args?.contractAddress.toString()} beneficiary: ${createEvents.args?.beneficiary.toString()} implementation ${createEvents.args?.implementation.toString()}`
 			// 	)
 			// })
 
-			const createFilter = contract.filters.YearDeployed() // All FundsReceived events
-			const createEvents = await contract.queryFilter(createFilter, block - 100, 'latest') // From block 0 to latest
-			console.log('events:', createEvents.length)
+			// // get last entry of createEvents and get the contract address
+			// const lastEvent = createEvents[createEvents.length - 1]
+			// const yearContractAddress = lastEvent.args?.contractAddress.toString()
 
-			//event YearDeployed(uint256 year, address contractAddress);
-			createEvents.forEach((createEvents: any) => {
-				// console.log(createEvents)
-				console.log(
-					`Deployed Year: ${createEvents.args?.year.toString()} contractAddress: ${createEvents.args?.contractAddress.toString()} beneficiary: ${createEvents.args?.beneficiary.toString()} implementation ${createEvents.args?.implementation.toString()}`
-				)
-			})
+			// console.log('----------get deployed years-----------')
+			// const deployedYearsAfter: [bigint, string][] = await contract.getAllDeployedYears()
 
-			// get last entry of createEvents and get the contract address
-			const lastEvent = createEvents[createEvents.length - 1]
-			const yearContractAddress = lastEvent.args?.contractAddress.toString()
+			// const deployedYears = deployedYearsAfter.map((yearInfo) => ({
+			// 	year: yearInfo[0].toString(), // Convert BigInt to string
+			// 	contractAddress: yearInfo[1],
+			// }))
 
-			console.log('----------get deployed years-----------')
-			const deployedYearsAfter: [bigint, string][] = await contract.getAllDeployedYears()
+			// console.log(JSON.stringify(deployedYears))
 
-			const deployedYears = deployedYearsAfter.map((yearInfo) => ({
-				year: yearInfo[0].toString(), // Convert BigInt to string
-				contractAddress: yearInfo[1],
-			}))
+			// const addressDeployedYear = deployedYears[deployedYears.length - 1].contractAddress
+			// console.log('Year Contract Address:', yearContractAddress, 'Deployed Year Contract Address:', addressDeployedYear)
 
-			console.log(JSON.stringify(deployedYears))
+			// const metadata = getAbi()
+			// const newContract = new ethers.Contract(yearContractAddress, metadata.abi, thetaProvider)
 
-			const addressDeployedYear = deployedYears[deployedYears.length - 1].contractAddress
-			console.log('Year Contract Address:', yearContractAddress, 'Deployed Year Contract Address:', addressDeployedYear)
+			// console.log('----------get year-----------')
+			// const year = await newContract.getYear()
+			// console.log('Year:', year)
 
-			const metadata = getAbi()
-			const newContract = new ethers.Contract(yearContractAddress, metadata.abi, thetaProvider)
+			// console.log('----------get beneficiary-----------')
+			// const beneficiary = await newContract.getBeneficiary()
+			// console.log('Beneficiary:', beneficiary)
+			// // fixME: expect(beneficiary).to.equal(checksumAddress)
 
-			console.log('----------get year-----------')
-			const year = await newContract.getYear()
-			console.log('Year:', year)
+			// deployedYearsAfter[0].forEach((yearInfo) => {
+			// 	console.log(yearInfo)
+			// })
 
-			console.log('----------get beneficiary-----------')
-			const beneficiary = await newContract.getBeneficiary()
-			console.log('Beneficiary:', beneficiary)
-			// fixME: expect(beneficiary).to.equal(checksumAddress)
+			// // Listen for YearParams event globally
+			// const filterYearParams = {
+			// 	address: undefined, // Listen to all addresses
+			// 	topics: [keccak256(toUtf8Bytes('YearParams(uint256,uint256,uint256,address)'))],
+			// }
 
-			deployedYearsAfter[0].forEach((yearInfo) => {
-				console.log(yearInfo)
-			})
+			// const blockHeight = await thetaProvider.getBlockNumber()
+			// const eventsYearParams = await thetaProvider.provider.getLogs({
+			// 	...filterYearParams,
+			// 	fromBlock: blockHeight - 1000,
+			// 	toBlock: 'latest',
+			// })
 
-			// Listen for YearParams event globally
-			const filterYearParams = {
-				address: undefined, // Listen to all addresses
-				topics: [keccak256(toUtf8Bytes('YearParams(uint256,uint256,uint256,address)'))],
-			}
-
-			const blockHeight = await thetaProvider.getBlockNumber()
-			const eventsYearParams = await thetaProvider.provider.getLogs({
-				...filterYearParams,
-				fromBlock: blockHeight - 1000,
-				toBlock: 'latest',
-			})
-
-			const abiCoder = new AbiCoder()
-			eventsYearParams.find((event: any) => {
-				const decoded = abiCoder.decode(['uint256', 'uint256', 'uint256', 'address'], event.data)
-				console.log('YearParams event:', decoded)
-			})
+			// const abiCoder = new AbiCoder()
+			// eventsYearParams.find((event: any) => {
+			// 	const decoded = abiCoder.decode(['uint256', 'uint256', 'uint256', 'address'], event.data)
+			// 	console.log('YearParams event:', decoded)
+			// })
 
 			console.log('----------end-----------')
 		} catch (err: any) {
@@ -144,7 +153,7 @@ function getAbi() {
 	// Go one folder lower than the project folder
 	const lowerFolderPath = resolve(currentPath, '..')
 
-	const contractName = 'Year'
+	const contractName = 'Car'
 	const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json` //`${lowerFolderPath}/year/artifacts/contracts/${contractName}.sol/${contractName}.json`
 	console.log('Json File:', jsonFile)
 

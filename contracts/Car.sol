@@ -4,13 +4,17 @@ pragma solidity ^0.8.0;
 
 // Create car smart contract
 contract Car {
-    // string public make;
-    // string public model;
-    // uint256 public year;
+    string public make;
+    string public model;
+    uint256 public year;
 event CarCreated(string make, string model, uint256 year);
 
     constructor(){
+        make = "Toyota";
+        model = "Corolla";
+        year = 2021;
         emit CarCreated("Toyota", "Corolla", 2021);
+
     }
 
     // Constructor to initialize car properties
@@ -36,7 +40,7 @@ event CarCreated(string make, string model, uint256 year);
     // }
 
     // // Function to get car details
-    // function getCarDetails() public view returns (string memory, string memory, uint256) {
-    //     return (make, model, year);
-    // }
+    function getCarDetails() public view returns (string memory, string memory, uint256) {
+        return (make, model, year);
+    }
 }

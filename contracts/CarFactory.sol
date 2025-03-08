@@ -20,6 +20,11 @@ contract CarFactory {
         cars.push(newCar);
     }
 
+    // Function to get the car contract at a specific index
+    function getCar(uint256 index) public view returns (Car) {
+        return cars[index];
+    }
+
     // Function to get the number of car contracts
     function getNumberOfCars() public view returns (uint256) {
         return cars.length;
