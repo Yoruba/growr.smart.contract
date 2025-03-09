@@ -5,6 +5,7 @@ import { DeployParams } from '../scripts/DeployParams'
 import { buildDeployParams } from '../scripts/buildDeployParams'
 import { Deployer } from '../scripts/Deployer'
 import { resolve } from 'path'
+import { Address } from '../typechain-types/@openzeppelin/contracts/utils/Address'
 
 describe('Functions', function () {
 	let contract: any
@@ -27,7 +28,7 @@ describe('Functions', function () {
 
 			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, 'YearFactory')
 			senderWallet = deployer.wallet
-			contract = await deployer.deploy([senderWallet.address, '0x97F955330e33B5a4BA262db3407ac33cf2b8d2da'])
+			contract = await deployer.deploy(['0x1bB3E9132C15b8184e60c78A391e11e37045d2cD'])
 			thetaProvider = deployer.provider
 			factory = deployer.contractFactory
 		} catch (err: any) {
@@ -54,11 +55,12 @@ describe('Functions', function () {
 			// attach to car contract
 			const carContract = new ethers.Contract(carAddress, getAbi().abi, thetaProvider)
 			// get car details
-			const carDetails = await carContract.getYearDetails()
-			console.log('Car Details:', carDetails)
 
 			const owner = await carContract.getOwner()
 			console.log('Owner:', owner)
+
+			const yearContractAddress = await contract.getYearContractAddress(2034)
+			console.log('Year Contract Address:', yearContractAddress)
 
 			// Get all past events (useful for initial loading)
 			// const filter = contract.filters.YearParams() // All FundsReceived events
