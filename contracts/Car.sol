@@ -18,6 +18,7 @@ contract Car is Initializable, UUPSUpgradeable {
 
     // Initializer function to set car properties
     function initialize(string memory _make, string memory _model, uint256 _year) public initializer {
+        __UUPSUpgradeable_init();
         make = _make;
         model = _model;
         year = _year;

@@ -2,10 +2,18 @@ import { DeployParams } from './DeployParams'
 import { Deployer } from './Deployer'
 import { ethers, keccak256, toUtf8Bytes, AbiCoder } from 'ethers'
 import { buildDeployParams } from './buildDeployParams'
+import { execSync } from 'child_process'
 
 const year = 2024
 
 export async function deploy() {
+	console.log('Clearing Hardhat cache...')
+	execSync('npx hardhat clean', { stdio: 'inherit' })
+
+	// Recompile the contracts
+	console.log('Compiling contracts...')
+	execSync('npx hardhat compile', { stdio: 'inherit' })
+	
 	const deployParams: DeployParams = buildDeployParams()
 	const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, deployParams.contractName)
 	const params: any[] = ['car', 'new', 2034] // [deployer.wallet.address, year, ethers.parseEther('1000'), ethers.parseEther('5000'), '0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4']
