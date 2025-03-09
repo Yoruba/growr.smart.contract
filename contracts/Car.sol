@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract Car is Initializable, UUPSUpgradeable {
+
+contract Car is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     string public make;
     string public model;
     uint256 public year;
@@ -18,6 +20,7 @@ contract Car is Initializable, UUPSUpgradeable {
 
     // Initializer function to set car properties
     function initialize(string memory _make, string memory _model, uint256 _year) public initializer {
+        __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         make = _make;
         model = _model;
@@ -48,14 +51,6 @@ contract Car is Initializable, UUPSUpgradeable {
     // Function required by UUPSUpgradeable
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-    // Modifier to restrict access to the owner
-    modifier onlyOwner() {
-        require(msg.sender == owner(), "Caller is not the owner");
-        _;
-    }
+   
 
-    // Function to get the owner (for demonstration purposes, replace with actual owner logic)
-    function owner() public view returns (address) {
-        return address(0); // Replace with actual owner address logic
-    }
 }
