@@ -126,32 +126,32 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	// --- receive functions ---
 
 	// This function is triggered when a contract receives plain tfuel (without data). msg.data must be empty
-	receive() external payable {
-		// if sender is owner, then allow to deposit any amount and do track the contribution
-		if (msg.sender == owner()) {
-			contributions[msg.sender] += msg.value;
-			emit FundsReceived(msg.sender, msg.value, year);
-			return;
-		}
+	// receive() external payable {
+	// 	// if sender is owner, then allow to deposit any amount and do track the contribution
+	// 	if (msg.sender == owner()) {
+	// 		contributions[msg.sender] += msg.value;
+	// 		emit FundsReceived(msg.sender, msg.value, year);
+	// 		return;
+	// 	}
 
-		// validate the amount received
-		if (msg.value != cost) revert("Amount is not correct.");
+	// 	// validate the amount received
+	// 	if (msg.value != cost) revert("Amount is not correct.");
 
-		// an address cannot deposit twice
-		require(contributions[msg.sender] == 0);
-		// Record the contribution and sum the amount of earlier contributions
-		contributions[msg.sender] += msg.value;
+	// 	// an address cannot deposit twice
+	// 	require(contributions[msg.sender] == 0);
+	// 	// Record the contribution and sum the amount of earlier contributions
+	// 	contributions[msg.sender] += msg.value;
 
-		// Emit the FundsReceived event
-		emit FundsReceived(msg.sender, msg.value, year);
+	// 	// Emit the FundsReceived event
+	// 	emit FundsReceived(msg.sender, msg.value, year);
 
-		withdraw();
-	}
+	// 	withdraw();
+	// }
 
-	// This function is called when no other function matches the call
-	// or when msg.data is not empty
-	fallback() external payable {
-		emit Trace("fallback", string(msg.data));
-		emit FundsReceived(msg.sender, msg.value, year);
-	}
+	// // This function is called when no other function matches the call
+	// // or when msg.data is not empty
+	// fallback() external payable {
+	// 	emit Trace("fallback", string(msg.data));
+	// 	emit FundsReceived(msg.sender, msg.value, year);
+	// }
 }

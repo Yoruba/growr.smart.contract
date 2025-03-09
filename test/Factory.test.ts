@@ -25,9 +25,9 @@ describe('Functions', function () {
 			console.log('Compiling contracts...')
 			execSync('npx hardhat compile', { stdio: 'inherit' })
 
-			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, 'CarFactory')
+			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, 'YearFactory')
 			senderWallet = deployer.wallet
-			contract = await deployer.deploy(['0x22530c94f028Dd007E9a56c36dc89129b1f79371'])
+			contract = await deployer.deploy(['0x97F955330e33B5a4BA262db3407ac33cf2b8d2da'])
 			thetaProvider = deployer.provider
 			factory = deployer.contractFactory
 		} catch (err: any) {
@@ -37,23 +37,24 @@ describe('Functions', function () {
 
 	it('deployYearContract', async function () {
 		try {
-			const tx = await contract.createCar(senderWallet.address, 'new', '122', 2034)
+			// fixme:  beneficiary
+			const tx = await contract.createYear(senderWallet.address, 2034, 1000, 1000000, '0x4407ae23ab2E97e91A6C3AB4d65F358632697939')
 			const receipt = await tx.wait()
 
 			const event = receipt?.logs
 			console.log('Event:', event)
 
 			// get year address by year
-			const yearAddress = await contract.getNumberOfCars()
+			const yearAddress = await contract.getNumberOfYears()
 			console.log('Year Address---:', yearAddress)
 
-			const carAddress = await contract.getCar(0)
+			const carAddress = await contract.getYear(0)
 			console.log('Car Address:', carAddress)
 
 			// attach to car contract
 			const carContract = new ethers.Contract(carAddress, getAbi().abi, thetaProvider)
 			// get car details
-			const carDetails = await carContract.getCarDetails()
+			const carDetails = await carContract.getYearDetails()
 			console.log('Car Details:', carDetails)
 
 			const owner = await carContract.getOwner()
@@ -153,7 +154,7 @@ function getAbi() {
 	// Go one folder lower than the project folder
 	const lowerFolderPath = resolve(currentPath, '..')
 
-	const contractName = 'Car'
+	const contractName = 'Year'
 	const jsonFile = `./artifacts/contracts/${contractName}.sol/${contractName}.json` //`${lowerFolderPath}/year/artifacts/contracts/${contractName}.sol/${contractName}.json`
 	console.log('Json File:', jsonFile)
 
