@@ -13,10 +13,10 @@ export async function deploy() {
 	// Recompile the contracts
 	console.log('Compiling contracts...')
 	execSync('npx hardhat compile', { stdio: 'inherit' })
-	
+
 	const deployParams: DeployParams = buildDeployParams()
 	const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, deployParams.contractName)
-	const params: any[] = ['car', 'new', 2034] // [deployer.wallet.address, year, ethers.parseEther('1000'), ethers.parseEther('5000'), '0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4']
+	const params: any[] = [deployer.wallet.address, 'car', 'new', 2034] // [deployer.wallet.address, year, ethers.parseEther('1000'), ethers.parseEther('5000'), '0xE873f6A0e5c72aD7030Bb4e0d3B3005C8C087DF4']
 
 	// await deployer.deploy(params)
 	await deployer.deployProxy(params)

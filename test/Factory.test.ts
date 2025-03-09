@@ -27,7 +27,7 @@ describe('Functions', function () {
 
 			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, 'CarFactory')
 			senderWallet = deployer.wallet
-			contract = await deployer.deploy(['0xAfc5dab0692E3201044A49A8Af5cdb15C468b74b'])
+			contract = await deployer.deploy(['0x22530c94f028Dd007E9a56c36dc89129b1f79371'])
 			thetaProvider = deployer.provider
 			factory = deployer.contractFactory
 		} catch (err: any) {
@@ -37,7 +37,7 @@ describe('Functions', function () {
 
 	it('deployYearContract', async function () {
 		try {
-			const tx = await contract.createCar('new', '122', 2034)
+			const tx = await contract.createCar(senderWallet.address, 'new', '122', 2034)
 			const receipt = await tx.wait()
 
 			const event = receipt?.logs
@@ -55,6 +55,9 @@ describe('Functions', function () {
 			// get car details
 			const carDetails = await carContract.getCarDetails()
 			console.log('Car Details:', carDetails)
+
+			const owner = await carContract.getOwner()
+			console.log('Owner:', owner)
 
 			// Get all past events (useful for initial loading)
 			// const filter = contract.filters.YearParams() // All FundsReceived events

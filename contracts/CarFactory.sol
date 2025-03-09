@@ -18,7 +18,7 @@ contract CarFactory {
     }
 
     // Function to create a new car contract
-    function createCar(string memory _make, string memory _model, uint256 _year) public {
+    function createCar(address _owner, string memory _make, string memory _model, uint256 _year) public {
         // // Create a new car contract
         // Car newCar = new Car();
         // // Initialize the new car contract
@@ -28,7 +28,7 @@ contract CarFactory {
           // Deploy a new proxy contract pointing to the car implementation
         ERC1967Proxy proxy = new ERC1967Proxy(
             carImplementation,
-            abi.encodeWithSelector(Car.initialize.selector, _make, _model, _year)
+            abi.encodeWithSelector(Car.initialize.selector, _owner, _make, _model, _year)
         );
         // Cast the proxy address to the Car type and add it to the array
         Car newCar = Car(address(proxy));
