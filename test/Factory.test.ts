@@ -27,7 +27,7 @@ describe('Functions', function () {
 
 			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, 'YearFactory')
 			senderWallet = deployer.wallet
-			contract = await deployer.deploy(['0x97F955330e33B5a4BA262db3407ac33cf2b8d2da'])
+			contract = await deployer.deploy([senderWallet.address, '0x97F955330e33B5a4BA262db3407ac33cf2b8d2da'])
 			thetaProvider = deployer.provider
 			factory = deployer.contractFactory
 		} catch (err: any) {
@@ -38,7 +38,7 @@ describe('Functions', function () {
 	it('deployYearContract', async function () {
 		try {
 			// fixme:  beneficiary
-			const tx = await contract.createYear(senderWallet.address, 2034, 1000, 1000000, '0x4407ae23ab2E97e91A6C3AB4d65F358632697939')
+			const tx = await contract.createYear(2034, 1000, 1000000, '0x4407ae23ab2E97e91A6C3AB4d65F358632697939')
 			const receipt = await tx.wait()
 
 			const event = receipt?.logs
