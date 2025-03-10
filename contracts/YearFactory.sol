@@ -5,10 +5,12 @@ pragma solidity ^0.8.0;
 // Import the year contract
 import "./Year.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 // Create year factory contract
-contract YearFactory is Ownable {
+contract YearFactory is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 	// Create a public array of year contracts
 	Year[] public yearContractAddresses;
 	address public yearImplementationAddress;
@@ -22,10 +24,19 @@ contract YearFactory is Ownable {
 	mapping(uint256 => address) public deployedYears; // Mapping of year to contract address
 	event YearDeployed(uint256 year, address contractAddress, address beneficiary, address implementation);
 
-	// Constructor to set the year implementation address
-	constructor(address _implementation) Ownable(msg.sender) {
-		//require(_owner != address(0), "Owner cannot be the zero address");
-		require(_implementation != address(0), "Implementation cannot be the zero address");
+	/// @custom:oz-upgrades-unsafe-allow constructor
+	constructor() {
+		_disableInitializers();
+	}
+
+	function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
+	// implement is the template contract that will be used to deploy new Year contracts
+	// It must be an implementation and not a proxy.
+	function initialize(address _owner, address _implementation) public initializer {
+		require(_owner != address(0), "Owner cannot be the zero address");
+		__Ownable_init(_owner);
+		__UUPSUpgradeable_init();
 		yearImplementationAddress = _implementation;
 	}
 
@@ -48,8 +59,6 @@ contract YearFactory is Ownable {
 	function getAllDeployedYears() public view returns (YearInfo[] memory) {
 		return deployedYearInfos;
 	}
-
-	
 
 	// --- setters ---
 
@@ -75,10 +84,8 @@ contract YearFactory is Ownable {
 		yearContractAddresses.push(newYear);
 
 		deployedYearInfos.push(YearInfo({year: _year, contractAddress: address(proxy)}));
-        deployedYears[_year] = address(proxy);
+		deployedYears[_year] = address(proxy);
 
 		emit YearDeployed(_year, address(proxy), _beneficiary, yearImplementationAddress);
 	}
-
-
 }

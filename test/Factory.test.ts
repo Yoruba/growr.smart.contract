@@ -28,7 +28,9 @@ describe('Functions', function () {
 
 			const deployer = new Deployer(deployParams.apiUrl, deployParams.privateKey, 'YearFactory')
 			senderWallet = deployer.wallet
-			contract = await deployer.deploy(['0x1bB3E9132C15b8184e60c78A391e11e37045d2cD'])
+
+			console.log('Deploying YearFactory contract...', contract)
+			contract = await deployer.deployProxy([senderWallet.address, '0x1bB3E9132C15b8184e60c78A391e11e37045d2cD'])
 			thetaProvider = deployer.provider
 			factory = deployer.contractFactory
 		} catch (err: any) {
@@ -74,6 +76,16 @@ describe('Functions', function () {
 
 			const allDeployedYears = await contract.getAllDeployedYears()
 			console.log('All Deployed Years:', allDeployedYears)
+
+			// set implementation
+			const implementation = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+			const txSetImplementation = await contract.setImplementation(implementation)
+			const receiptSetImplementation = await txSetImplementation.wait()
+			// console.log('Set Implementation:', receiptSetImplementation)
+
+			// get implementation
+			const implementationAddress = await contract.getImplementation()
+			console.log('Implementation Address:', implementationAddress)
 
 			// Get all past events (useful for initial loading)
 			// const filter = contract.filters.YearParams() // All FundsReceived events
