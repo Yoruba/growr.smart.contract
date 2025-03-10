@@ -10,8 +10,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // Create year factory contract
 contract YearFactory is Ownable {
 	// Create a public array of year contracts
-	Year[] public yearContracts;
-	address public yearImplementation;
+	Year[] public yearContractAddresses;
+	address public yearImplementationAddress;
 
 	struct YearInfo {
 		uint256 year;
@@ -26,7 +26,7 @@ contract YearFactory is Ownable {
 	constructor(address _implementation) Ownable(msg.sender) {
 		//require(_owner != address(0), "Owner cannot be the zero address");
 		require(_implementation != address(0), "Implementation cannot be the zero address");
-		yearImplementation = _implementation;
+		yearImplementationAddress = _implementation;
 	}
 
 	// --- getters ---
@@ -38,7 +38,7 @@ contract YearFactory is Ownable {
 	}
 
 	function getImplementation() public view returns (address) {
-		return yearImplementation;
+		return yearImplementationAddress;
 	}
 
 	function getOwner() public view returns (address) {
@@ -49,6 +49,8 @@ contract YearFactory is Ownable {
 		return deployedYearInfos;
 	}
 
+	
+
 	// --- setters ---
 
 	// Optional: Function to update the implementation contract (important for upgrades)
@@ -56,35 +58,27 @@ contract YearFactory is Ownable {
 	// This is how you upgrade the Year contract logic.
 	function setImplementation(address _implementation) public onlyOwner {
 		require(_implementation != address(0), "Implementation cannot be the zero address");
-		yearImplementation = _implementation;
+		yearImplementationAddress = _implementation;
 	}
 
 	// Function to create a new year contract
 	function createYear(uint256 _year, uint256 _cost, uint256 _withdrawalLimit, address _beneficiary) public {
-		// require(_year >= 2000 && _year <= 2060, "Invalid year");
-		// require(deployedYears[_year] == address(0), "Year already deployed");
+		require(_year >= 2000 && _year <= 2060, "Invalid year");
+		require(deployedYears[_year] == address(0), "Year already deployed");
 		// Deploy a new proxy contract pointing to the year implementation
 		ERC1967Proxy proxy = new ERC1967Proxy(
-			yearImplementation,
+			yearImplementationAddress,
 			abi.encodeWithSelector(Year.initialize.selector, owner(), _year, _cost, _withdrawalLimit, _beneficiary)
 		);
 		// Cast the proxy address to the Year type and add it to the array
 		Year newYear = Year(payable(address(proxy)));
-		yearContracts.push(newYear);
+		yearContractAddresses.push(newYear);
 
 		deployedYearInfos.push(YearInfo({year: _year, contractAddress: address(proxy)}));
         deployedYears[_year] = address(proxy);
 
-		emit YearDeployed(_year, address(proxy), _beneficiary, yearImplementation);
+		emit YearDeployed(_year, address(proxy), _beneficiary, yearImplementationAddress);
 	}
 
-	// Function to get the year contract at a specific index
-	function getYear(uint256 index) public view returns (Year) {
-		return yearContracts[index];
-	}
 
-    	// Function to get the number of year contracts
-	function getNumberOfYears() public view returns (uint256) {
-		return yearContracts.length;
-	}
 }

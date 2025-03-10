@@ -38,29 +38,42 @@ describe('Functions', function () {
 
 	it('deployYearContract', async function () {
 		try {
-			// fixme:  beneficiary
-			const tx = await contract.createYear(2034, 1000, 1000000, '0x4407ae23ab2E97e91A6C3AB4d65F358632697939')
+			// Call the getAllYearInfos function
+			const yearInfos: [bigint, string][] = await contract.getAllDeployedYears()
+
+			// Process the returned array
+			const processedYearInfos = yearInfos.map((yearInfo) => ({
+				year: Number(yearInfo[0]),
+				contractAddress: yearInfo[1],
+			}))
+
+			console.log(`processedYearInfos: ${JSON.stringify(processedYearInfos)}`)
+
+			const lastDeployedYear = processedYearInfos[processedYearInfos.length - 1]?.year || 2000
+
+			console.log('Last Deployed Year:', lastDeployedYear)
+			const newYear = Number(lastDeployedYear) + 1
+			console.log('Year:', newYear.toString())
+
+			const checksumAddress = ethers.getAddress('0xe873f6a0e5c72ad7030bb4e0d3b3005c8c087df4')
+			console.log('Checksum Address:', checksumAddress)
+			const tx = await contract.createYear(newYear, 1000, 1000000, checksumAddress)
 			const receipt = await tx.wait()
 
 			const event = receipt?.logs
-			console.log('Event:', event)
+			// console.log('Event:', event)
 
-			// get year address by year
-			const yearAddress = await contract.getNumberOfYears()
-			console.log('Year Address---:', yearAddress)
-
-			const carAddress = await contract.getYear(0)
-			console.log('Car Address:', carAddress)
-
-			// attach to car contract
-			const carContract = new ethers.Contract(carAddress, getAbi().abi, thetaProvider)
-			// get car details
-
+			const yearContractAddress = await contract.getYearContractAddress(newYear)
+			console.log('Year Contract Address:', yearContractAddress)
+			const carContract = new ethers.Contract(yearContractAddress, getAbi().abi, thetaProvider)
 			const owner = await carContract.getOwner()
 			console.log('Owner:', owner)
 
-			const yearContractAddress = await contract.getYearContractAddress(2034)
-			console.log('Year Contract Address:', yearContractAddress)
+			const yearContract = await carContract.getYear()
+			console.log('Year:', yearContract)
+
+			const allDeployedYears = await contract.getAllDeployedYears()
+			console.log('All Deployed Years:', allDeployedYears)
 
 			// Get all past events (useful for initial loading)
 			// const filter = contract.filters.YearParams() // All FundsReceived events
