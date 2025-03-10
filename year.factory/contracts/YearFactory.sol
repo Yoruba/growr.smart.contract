@@ -1,6 +1,7 @@
 // create factory
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+// @custom:hardhat-ignore-error 408
+pragma solidity ^0.8.28;
 
 // Import the year contract
 import "./Year.sol";

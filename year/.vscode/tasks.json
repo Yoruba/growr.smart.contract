@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Node",
+      "type": "shell",
+      "command": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta start --config=../privatenet/validator --password=qwertyuiop",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Run RPC",
+      "type": "shell",
+      "command": "cd /home/nuc/theta_local_privatenet_linux/bin && ./theta-eth-rpc-adaptor start --config=../privatenet/eth_rpc_adaptor",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Watch Solidity Files",
+      "type": "shell",
+      "command": "npm run watch",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "detail": "A task to watch Solidity files and run Prettier on changes."
+    }
+  ]
+}
