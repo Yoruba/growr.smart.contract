@@ -1,5 +1,25 @@
 # Theta
 
+
+Sending Theta/TFuel to a smart contract (0x6258F2d1c4f50a0873C67c2e6fE0CBe0605d6e70) through a SendTx transaction is not allowed
+
+
+# Ether to wei table
+https://eth-converter.com/
+
+# Ether to wei table
+https://eth-converter.com/
+
+| Ether | Wei (in scientific notation) | Wei (in full)            |
+|-------|------------------------------|--------------------------|
+| 1     | 1e18                         | 1000000000000000000      |
+| 10    | 1e19                         | 10000000000000000000     |
+| 100   | 1e20                         | 100000000000000000000    |
+| 1000  | 1e21                         | 1000000000000000000000   |
+
+
+
+
 # deployment
 First deploy the year contract as a template
 Use the implementation address to deploy the year contract with the year factory

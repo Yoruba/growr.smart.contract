@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /// @custom:security-contact hi@ggrow.io
 contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
-	uint256 public year;
-	uint256 public cost;
-	uint256 public withdrawalLimit;
-	address public beneficiary;
-	mapping(address => uint256) public contributions; // keep track of contributions
+	uint256 private year;
+	uint256 private cost;
+	uint256 private withdrawalLimit;
+	address private beneficiary;
+	mapping(address => uint256) private contributions; // keep track of contributions
 
 	event FundsReceived(address indexed sender, uint256 amount, uint256 year);
 	event Withdrawal(address indexed sender, uint256 amount, address recipient, uint256 year);
@@ -127,7 +127,7 @@ contract Year is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
 	// This function is triggered when a contract receives plain tfuel (without data). msg.data must be empty
 	receive() external payable {
-		// if sender is owner, then allow to deposit any amount and do track the contribution
+		// PPif sender is owner, then allow to deposit any amount and do track the contribution
 		if (msg.sender == owner()) {
 			contributions[msg.sender] += msg.value;
 			emit FundsReceived(msg.sender, msg.value, year);
